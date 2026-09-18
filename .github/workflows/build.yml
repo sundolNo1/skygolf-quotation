@@ -1,0 +1,40 @@
+name: Build Windows installers
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        dir: [win10, win7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install
+        working-directory: ${{ matrix.dir }}
+        run: npm ci
+      - name: Build
+        working-directory: ${{ matrix.dir }}
+        run: npx electron-builder --win --publish never
+      - name: Upload to release
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        working-directory: ${{ matrix.dir }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" --repo "$GITHUB_REPOSITORY" --title "${GITHUB_REF_NAME}" --notes "윈도우 10/11: SKYGOLF_Setup_Win10-11.exe (설치형) / SKYGOLF_Portable_Win10-11.exe (설치 없이 실행)
+          윈도우 7 SP1 / 8 / 8.1: SKYGOLF_Setup_Win7-8.exe
+
+          파란 'Windows의 PC 보호' 창이 뜨면 '추가 정보 → 실행'을 누르세요." 2>/dev/null || true
+          gh release upload "${GITHUB_REF_NAME}" dist/*.exe --repo "$GITHUB_REPOSITORY" --clobber
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.dir }}
+          path: ${{ matrix.dir }}/dist/*.exe

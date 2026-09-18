@@ -1,0 +1,59 @@
+{
+  "name": "skygolf-quotation",
+  "productName": "SKY GOLF 견적 프로그램",
+  "version": "1.0.1",
+  "description": "SKY GOLF Agency 골프 견적서 작성 프로그램 (구형 윈도우용)",
+  "author": "Global Cavin Bizcom Co.,Ltd.",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac"
+  },
+  "devDependencies": {
+    "electron": "22.3.27",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.skygolf.quotation",
+    "productName": "SKY GOLF 견적 프로그램",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "app/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "${productName}-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "SKY GOLF 견적 프로그램",
+      "artifactName": "SKYGOLF_Setup_Win7-8.${ext}",
+      "language": "1042"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "build/icon.png",
+      "category": "public.app-category.business"
+    }
+  }
+}

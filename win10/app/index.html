@@ -1,0 +1,1643 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SKY GOLF 견적 프로그램</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ===================== 공통 ===================== */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  background:#eef1f0;color:#1d2321;font-size:14px;
+}
+button{font-family:inherit;font-size:13px;cursor:pointer;border-radius:6px;border:1px solid #c6cdc9;background:#fff;padding:7px 12px}
+button:hover{background:#f3f6f4}
+button.primary{background:#14713f;border-color:#14713f;color:#fff;font-weight:700}
+button.primary:hover{background:#0f5c33}
+button.warn{color:#b3261e;border-color:#e2bdba}
+button.mini{padding:3px 8px;font-size:12px}
+input,select,textarea{font-family:inherit;font-size:13px;border:1px solid #cfd6d2;border-radius:5px;padding:5px 7px;background:#fff;color:#1d2321;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid #14713f;outline-offset:-1px}
+input[readonly]{background:#f4f6f5;color:#6a726e}
+.num{text-align:right}
+
+/* ===================== 상단바 ===================== */
+header{background:#14713f;color:#fff;padding:0 16px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+header h1{font-size:16px;margin:0;padding:12px 0;letter-spacing:-.3px}
+header h1 span{opacity:.7;font-weight:400;font-size:13px;margin-left:6px}
+nav{display:flex;gap:2px;margin-left:auto}
+nav button{background:transparent;border:0;color:#cfe6da;padding:12px 16px;border-radius:0;font-size:14px;font-weight:600}
+nav button:hover{background:rgba(255,255,255,.1);color:#fff}
+nav button.on{background:#eef1f0;color:#14713f}
+
+main{max-width:1280px;margin:0 auto;padding:16px}
+.page{display:none}
+.page.on{display:block}
+
+.card{background:#fff;border:1px solid #dfe5e2;border-radius:10px;margin-bottom:14px}
+.card>h2{font-size:14px;margin:0;padding:11px 14px;border-bottom:1px solid #eaeeec;background:#f7f9f8;border-radius:10px 10px 0 0;display:flex;align-items:center;gap:10px}
+.card>h2 .sub{font-weight:400;font-size:12px;color:#7b837f}
+.card>h2 .right{margin-left:auto;display:flex;gap:6px}
+.card .body{padding:12px 14px}
+
+/* ===================== 호텔 카드 ===================== */
+.hcard{border:1px solid #dfe5e2;border-radius:8px;padding:10px 12px;margin-bottom:10px;background:#fbfcfb}
+.hcard .hg{display:grid;grid-template-columns:64px 1fr;gap:7px 10px;align-items:center;font-size:13px}
+.hcard .hg>label{font-size:12px;color:#5d6561;font-weight:700;text-align:right;margin:0}
+.hcard .hg>div{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.hcard .hg input[type=date]{width:140px}
+.hcard .hg select{width:auto}
+.hcard .op{color:#8a918d;font-weight:700}
+.hcard .calc{font-weight:700;color:#0b63c5;font-variant-numeric:tabular-nums}
+.hcard .hfoot{display:flex;align-items:center;gap:10px;margin-top:8px;padding-top:8px;border-top:1px dashed #dfe5e2}
+.hcard .hfoot .amt{margin-left:auto;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+#hotelWrap .empty,#carWrap .empty,#otherWrap .empty{text-align:center;color:#b5bbb8;padding:10px;font-size:13px}
+.vcard{border:1px solid #dfe5e2;border-radius:8px;padding:8px 12px;margin-bottom:8px;background:#fbfbfd}
+.vcard .vrow{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;font-size:13px}
+.vcard .vrow+.vrow{margin-top:6px;padding-left:76px}
+.vcard .vt{font-weight:800;color:#14713f;min-width:68px;font-size:13px}
+.vcard select.vt{width:auto;font-weight:800;color:#14713f;border-color:#cfe6da}
+.vcard .vl{font-size:12px;color:#5d6561}
+.vcard .op{color:#8a918d;font-weight:700}
+.vcard .vrow select{width:auto}
+.vcard .vrow input[type=date]{width:140px}
+.vcard .vamt{margin-left:auto;display:flex;align-items:center;gap:6px;font-weight:800;font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.vcard .vamt .unit{font-size:12px;font-weight:400;color:#7b837f}
+.vcard.note{background:#fffdf5}
+.vcard.item{background:#fff}
+
+/* ===================== 편집 테이블 ===================== */
+table.edit{width:100%;border-collapse:collapse}
+table.edit th{background:#f2f5f3;font-size:12px;color:#5d6561;font-weight:700;padding:7px 5px;border:1px solid #e4e9e6;white-space:nowrap}
+table.edit td{border:1px solid #eef1ef;padding:3px 4px;vertical-align:middle}
+table.edit td.amt{text-align:right;font-weight:700;padding-right:8px;white-space:nowrap;font-variant-numeric:tabular-nums}
+table.edit tr.we td:first-child{box-shadow:inset 3px 0 0 #d2453c}
+.hrow{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:12px;color:#5d6561}
+.hrow input[type=date]{width:130px}
+.hrow select{width:auto}
+.hrow .nights{font-weight:700;color:#0b63c5;margin-left:4px}
+table.edit tr.hotel td{background:#fbfcfb}
+table.edit tr.car td{background:#fbfbfd}
+#paper .xtra{color:#0b63c5;font-size:.92em}
+#paper .hol{color:#d2453c;font-weight:700}
+.tag{display:inline-block;font-size:11px;padding:1px 6px;border-radius:10px;background:#eaf2ed;color:#14713f;font-weight:700;white-space:nowrap}
+.tag.h{background:#fdeeea;color:#c0402f}
+.tag.na{background:#f1f1f1;color:#8a8a8a}
+.hint{font-size:12px;color:#7b837f;line-height:1.7}
+.grid{display:grid;gap:10px}
+.f label{display:block;font-size:11px;color:#6a726e;margin-bottom:3px;font-weight:700}
+
+/* 합계 박스 */
+.totbox{display:grid;grid-template-columns:1fr auto;gap:2px 22px;align-items:center;font-size:14px}
+.totbox .l{color:#5d6561}
+.totbox .v{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.totbox .big{font-size:20px;color:#14713f}
+.totbox hr{grid-column:1/-1;border:0;border-top:1px solid #e8ecea;margin:6px 0;width:100%}
+
+/* ===================== 저장 목록 ===================== */
+table.list{width:100%;border-collapse:collapse;font-size:13px}
+table.list th{text-align:left;background:#f2f5f3;padding:8px;border-bottom:1px solid #e4e9e6;font-size:12px;color:#5d6561}
+table.list td{padding:8px;border-bottom:1px solid #f0f3f1}
+table.list tr:hover td{background:#fafcfb}
+
+/* ===================== 단가표 ===================== */
+table.price{border-collapse:collapse;font-size:12px;white-space:nowrap}
+table.price th,table.price td{border:1px solid #d5dbd8;padding:4px 7px;text-align:center}
+table.price th{background:#eef3f0;font-weight:700;color:#3c4441}
+table.price td.nm{text-align:left;font-weight:700;background:#fafbfa}
+table.price td.t{font-weight:700;background:#f6faf7;font-variant-numeric:tabular-nums}
+table.price td.na{color:#b5bbb8}
+.scroll{overflow-x:auto}
+</style>
+
+<style id="printcss">
+/* ===================== 견적서 출력물 ===================== */
+#paper{
+  --green:#0f3d2e; --green-2:#1b5a44; --gold:#b8963e; --gold-soft:#f3ecd8;
+  --ink:#1c1f1d; --mute:#6b7370; --rule:#d9ded9; --tint:#f4f6f4;
+  width:800px;margin:0 auto;background:#fff;padding:36px 40px 32px;box-sizing:border-box;
+  font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color:var(--ink);font-size:12.5px;line-height:1.55;
+}
+#paper *{box-sizing:border-box}
+#paper .serif{font-family:"Noto Serif KR","Apple SD Gothic Neo",serif}
+#paper .num{font-variant-numeric:tabular-nums}
+#paper .brand{display:flex;align-items:center;gap:12px;padding-bottom:10px;border-bottom:2px solid var(--green)}
+#paper .logo{width:52px;height:52px;flex:none;display:block}
+#paper .brand .co{font-family:"Noto Serif KR","Apple SD Gothic Neo",serif;font-size:17px;font-weight:600;color:var(--green);line-height:1.2}
+#paper .brand .addr{font-size:10.5px;color:var(--mute)}
+#paper .brand .doc{margin-left:auto;text-align:right;font-size:11px;color:var(--mute);line-height:1.5}
+#paper .brand .doc b{display:block;font-family:"Noto Serif KR","Apple SD Gothic Neo",serif;font-size:15px;color:var(--ink);font-weight:600}
+#paper .hero{display:grid;grid-template-columns:1fr 168px;gap:18px;margin:14px 0 16px;padding:14px 16px;background:var(--tint);border-radius:6px}
+#paper .hero h1{margin:0 0 4px;font-family:"Noto Serif KR","Apple SD Gothic Neo",serif;font-size:21px;font-weight:600;color:var(--green);line-height:1.25}
+#paper .hero .facts{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:12.5px;margin-top:6px}
+#paper .hero .facts span{color:var(--mute)}
+#paper .hero .facts b{font-weight:500;color:var(--ink);margin-left:5px}
+#paper .hero .pp{border-left:1px solid var(--rule);padding-left:18px;display:flex;flex-direction:column;justify-content:center}
+#paper .hero .pp .lbl{font-size:11px;color:var(--mute)}
+#paper .hero .pp .thb{font-family:"Noto Serif KR","Apple SD Gothic Neo",serif;font-size:24px;font-weight:700;color:var(--green);line-height:1.15;margin-top:2px}
+#paper .hero .pp .krw{font-size:12px;color:var(--gold);font-weight:700;margin-top:2px}
+#paper .hero .pp .tot{font-size:11px;color:var(--mute);margin-top:8px;padding-top:6px;border-top:1px dashed var(--rule)}
+#paper h2{margin:16px 0 6px;font-size:13px;font-weight:700;color:var(--green);display:flex;align-items:baseline;gap:8px}
+#paper h2 small{font-weight:400;color:var(--mute);font-size:11px}
+#paper h2 .sum{margin-left:auto;font-weight:500;color:var(--ink);font-size:12px}
+#paper table{width:100%;border-collapse:collapse;font-size:inherit;font-family:inherit;color:inherit}
+#paper th{font-size:10.5px;font-weight:500;color:var(--mute);text-align:left;padding:4px 6px;border-bottom:1px solid var(--rule)}
+#paper td{padding:6px 6px;border-bottom:1px solid #eceeec;vertical-align:middle}
+#paper td.r,#paper th.r{text-align:right}
+#paper td.c,#paper th.c{text-align:center}
+#paper .day{white-space:nowrap}
+#paper .day b{font-weight:700}
+#paper .day .wk{display:inline-block;min-width:22px;margin-left:4px;color:var(--mute);font-size:11px}
+#paper .day.we .wk{color:#c23b2f;font-weight:700}
+#paper .stop{display:inline-block;padding:1px 7px;border-radius:3px;font-size:10.5px;background:var(--gold-soft);color:#7a5f18;font-weight:700;margin-right:6px}
+#paper .stop.golf{background:#e6efe9;color:var(--green)}
+#paper .stop.car{background:#eceef5;color:#3c4a7a}
+#paper .stop.rest{background:#f0f0ee;color:#6b7370}
+#paper .stay{background:#fbfcfb}
+#paper .stay td{border-bottom:1px solid var(--rule)}
+#paper .stay .bar{display:flex;align-items:center;gap:8px}
+#paper .stay .bar i{flex:1;height:4px;background:var(--green-2);border-radius:2px;opacity:.55}
+#paper .memo{color:var(--mute);font-size:11px}
+#paper .hol{color:#c23b2f;font-weight:700;font-size:11px}
+#paper .total{margin-top:14px;display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
+#paper .incl{font-size:11.5px;line-height:1.6}
+#paper .incl h3{margin:0 0 3px;font-size:11.5px;color:var(--green)}
+#paper .incl ul{margin:0 0 8px;padding-left:16px}
+#paper .incl li{margin:0}
+#paper .sumbox{border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+#paper .sumbox .row{display:flex;justify-content:space-between;padding:6px 12px;font-size:12px;border-bottom:1px solid #eceeec}
+#paper .sumbox .row span{color:var(--mute)}
+#paper .sumbox .grand{background:var(--green);color:#fff;padding:9px 12px;display:flex;justify-content:space-between;align-items:baseline}
+#paper .sumbox .grand b{font-family:"Noto Serif KR","Apple SD Gothic Neo",serif;font-size:18px;font-weight:700}
+#paper .sumbox .pp2{background:var(--gold-soft);padding:7px 12px;font-size:11.5px;display:flex;justify-content:space-between}
+#paper .sumbox .pp2 b{color:#7a5f18}
+#paper .foot{margin-top:16px;padding-top:10px;border-top:2px solid var(--green);display:flex;gap:20px;font-size:11px;line-height:1.6}
+#paper .foot .k{color:var(--mute);display:block;font-size:10.5px}
+#paper .foot .bank{display:inline-block;background:var(--tint);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;color:var(--green);line-height:1.6}
+#paper .foot .valid{margin-left:auto;text-align:right;color:var(--mute)}
+
+@media print{
+  @page{size:A4 portrait;margin:9mm 10mm}
+  body{background:#fff}
+  body>header,body>main>.page,body>main>.pbar{display:none!important}
+  body>main{padding:0;max-width:none}
+  #printArea{display:block!important}
+  #paper{width:auto;padding:0;font-size:12px}
+  #paper .hero,#paper .stay,#paper .stop,#paper .sumbox .grand,#paper .sumbox .pp2,#paper .foot .bank{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #paper tr{page-break-inside:avoid}
+  #paper td{padding:4px 6px}
+  #paper h2{margin:11px 0 4px}
+  #paper .hero{margin:10px 0 12px;padding:10px 14px}
+  #paper .total{margin-top:10px}
+  #paper .foot{margin-top:10px;padding-top:8px}
+  #paper .sumbox .row{padding:4px 12px}
+}
+#printArea{display:none}
+</style>
+
+<header>
+  <h1>⛳ SKY GOLF 견적 프로그램 <span>관리자용</span></h1>
+  <nav>
+    <button data-tab="write" class="on">견적서 작성</button>
+    <button data-tab="preview">미리보기 / 출력</button>
+    <button data-tab="list">저장 목록</button>
+    <button data-tab="price">골프장 단가표</button>
+    <button data-tab="set">설정</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ============================================================ 작성 -->
+<section class="page on" id="tab-write">
+
+  <div class="card">
+    <h2>견적 기본정보
+      <span class="right">
+        <button id="btnNew">새 견적</button>
+        <button id="btnSave" class="primary">저장</button>
+      </span>
+    </h2>
+    <div class="body">
+      <div class="grid f" style="grid-template-columns:repeat(6,1fr)">
+        <div><label>견적번호</label><input id="m_no"></div>
+        <div><label>작성일자</label><input id="m_date" type="date"></div>
+        <div><label>성함 (고객)</label><input id="m_name"></div>
+        <div><label>인원</label><input id="m_pax" type="number" min="1" class="num"></div>
+        <div><label>기간 시작 (달력)</label><input id="m_pfrom" type="date"></div>
+        <div><label>기간 종료 (달력)</label><input id="m_pto" type="date"></div>
+        <div style="grid-column:span 2"><label>기간 표시문구 <span style="font-weight:400;color:#8a918d">(달력을 고르면 자동, 직접 고쳐도 됨)</span></label><input id="m_period" placeholder="2027년 01/22 ~ 01/29"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>1. 골프 일정 <span class="sub">날짜·골프장을 고르면 시즌/평일·주말·태국 공휴일을 판단해 단가가 자동 입력됩니다</span>
+      <span class="right">
+        <button id="btnAddRow">+ 일정 추가</button>
+        <button id="btnAddDays">+ 연속날짜 채우기</button>
+      </span>
+    </h2>
+    <div class="body" style="padding:0">
+      <div class="scroll">
+        <table class="edit" id="golfTable">
+          <thead><tr>
+            <th style="width:34px">No</th>
+            <th style="width:132px">날짜</th>
+            <th style="width:46px">요일</th>
+            <th style="width:190px">골프장 / 항목</th>
+            <th style="width:72px">홀</th>
+            <th style="width:86px">시즌</th>
+            <th style="width:82px">요금</th>
+            <th>시간 및 내용</th>
+            <th style="width:60px">수량</th>
+            <th style="width:62px">단위</th>
+            <th style="width:92px">단가(THB)</th>
+            <th style="width:220px">추가골프비용 <span style="font-weight:400">(내용 · 1인당 금액)</span></th>
+            <th style="width:100px">금액(THB)</th>
+            <th style="width:34px"></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="body" style="border-top:1px solid #eef1ef">
+        <div class="f"><label>골프 섹션 하단 비고문구</label><input id="m_golfnote"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. 호텔
+      <span class="right">
+        <button id="btnAddHotel">+ 호텔 추가</button>
+      </span>
+    </h2>
+    <div class="body" id="hotelWrap"></div>
+  </div>
+
+  <div class="card">
+    <h2>3. 차량 <span class="sub">공항 픽업·샌딩은 차량 1대 기준 단가</span>
+      <span class="right">
+        <button id="btnAddPickup">+ 공항픽업</button>
+        <button id="btnAddSend">+ 공항샌딩</button>
+        <button id="btnAddCar">+ 차량</button>
+      </span>
+    </h2>
+    <div class="body" id="carWrap"></div>
+  </div>
+
+  <div class="card">
+    <h2>4. 기타 항목 <span class="sub">식사·관광·팁 등 골프/호텔/차량 외 비용과 비고 문구</span>
+      <span class="right">
+        <button id="btnAddItem">+ 기타 항목</button>
+        <button id="btnAddNote">+ 비고줄</button>
+      </span>
+    </h2>
+    <div class="body" id="otherWrap"></div>
+  </div>
+
+  <div class="card">
+    <h2>합계</h2>
+    <div class="body" style="display:grid;grid-template-columns:1fr 340px;gap:24px">
+      <div>
+        <div class="grid f" style="grid-template-columns:repeat(3,1fr)">
+          <div><label>환율 (1 THB = ? 원)</label>
+            <div style="display:flex;gap:6px;align-items:center"><input id="m_fx" type="number" step="0.01" class="num"><button id="btnFx" style="white-space:nowrap">오늘 환율 가져오기</button></div>
+            <div class="hint" id="fxInfo" style="min-height:18px"></div></div>
+          <div style="grid-column:span 2;align-self:end" class="hint">단가표 금액에 마진이 포함되어 있어 합계가 곧 판매가입니다. 부가세는 따로 계산하지 않습니다.</div>
+        </div>
+        <div class="f" style="margin-top:10px"><label>Remark (견적서 하단 문구 · 줄바꿈으로 여러 줄)</label>
+          <textarea id="m_remark" rows="4"></textarea>
+        </div>
+      </div>
+      <div>
+        <div class="totbox">
+          <div class="l">1. 골프 소계</div><div class="v" id="t_golf">0</div>
+          <div class="l">2. 호텔 소계</div><div class="v" id="t_hotel">0</div>
+          <div class="l">3. 차량 소계</div><div class="v" id="t_car">0</div>
+          <div class="l" id="t_item_l" style="display:none">4. 기타 소계</div><div class="v" id="t_item" style="display:none">0</div>
+          <hr>
+          <div class="l"><b>Grand Total</b></div><div class="v big" id="t_grand">฿0</div>
+          <hr>
+          <div class="l">1인당 (THB)</div><div class="v" id="t_pp">0</div>
+          <div class="l">1인당 (원화)</div><div class="v" id="t_ppw">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 미리보기 -->
+<section class="page" id="tab-preview">
+  <div class="pbar" style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+    <button class="primary" id="btnPrint">🖨 인쇄 / PDF 저장</button>
+    <button id="btnJpg">🖼 이미지(JPG) 저장</button>
+    <span class="hint">인쇄창에서 <b>대상 → PDF로 저장</b>을 고르면 PDF가 됩니다. 이미지는 카톡 전송용으로 좋습니다.</span>
+  </div>
+  <div style="overflow-x:auto;background:#fff;border:1px solid #dfe5e2;border-radius:10px;padding:14px">
+    <div id="paper"></div>
+  </div>
+</section>
+<div id="printArea"></div>
+
+<!-- ============================================================ 목록 -->
+<section class="page" id="tab-list">
+  <div class="card">
+    <h2>저장된 견적서
+      <span class="right">
+        <button id="btnExport">전체 백업(.json) 내려받기</button>
+        <button id="btnImport">백업 불러오기</button>
+        <input type="file" id="fileImport" accept=".json" style="display:none">
+      </span>
+    </h2>
+    <div class="body" style="padding:0">
+      <table class="list" id="listTable">
+        <thead><tr>
+          <th style="width:110px">견적번호</th><th style="width:110px">작성일</th><th>성함</th>
+          <th style="width:60px">인원</th><th style="width:170px">기간</th>
+          <th style="width:130px;text-align:right">Grand Total</th>
+          <th style="width:230px"></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="body hint" id="listEmpty">아직 저장된 견적서가 없습니다.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 단가표 -->
+<section class="page" id="tab-price">
+  <div class="card">
+    <h2>골프장 단가표
+      <span class="sub">Total 금액이 견적서 단가로 자동 입력됩니다</span>
+      <span class="right">
+        <input id="cxKo" placeholder="새 골프장 한글명" style="width:150px">
+        <input id="cxEn" placeholder="영문명 (선택)" style="width:130px">
+        <button id="btnAddCourse">＋ 골프장 추가</button>
+        <button id="btnEditPrice">단가 수정</button>
+        <button id="btnResetPrice" class="warn">원본으로 되돌리기</button>
+      </span>
+    </h2>
+    <div class="body" style="padding:0">
+      <div class="scroll" id="priceWrap"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>태국 공휴일 <span class="sub">이 날짜는 자동으로 공휴일(주말요금)이 적용됩니다</span>
+      <span class="right">
+        <select id="holYear" style="width:auto"></select>
+        <button id="btnResetHol" class="warn">기본 목록으로 되돌리기</button>
+      </span>
+    </h2>
+    <div class="body">
+      <div class="hrow" style="margin-bottom:10px">
+        <b>공휴일 추가</b>
+        <input type="date" id="holDate">
+        <input id="holName" placeholder="휴일 이름 (예: 특별휴일)" style="width:220px">
+        <button class="primary" id="btnAddHol">추가</button>
+        <span class="hint" style="margin-left:8px">정부 특별휴일이나 골프장 자체 휴일요금 날짜를 넣으세요. 기본 목록의 날짜를 ✕ 하면 그 날은 평일/주말로만 계산됩니다.</span>
+      </div>
+      <table class="edit" id="holTable" style="max-width:720px">
+        <thead><tr><th style="width:110px">날짜</th><th style="width:50px">요일</th><th>휴일 이름</th><th style="width:70px">구분</th><th style="width:60px"></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="hint" style="margin-top:8px">· 2027년 불교 명절(마카부차·위사카부차·아산하부차·카오판사)은 음력 기준 예상일입니다. 태국 정부 확정 후 다르면 ✕ 하고 다시 추가하세요.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 설정 -->
+<section class="page" id="tab-set">
+  <div class="card">
+    <h2>견적서 상단 정보 <span class="sub">모든 견적서에 공통으로 인쇄됩니다</span></h2>
+    <div class="body grid f" style="grid-template-columns:1fr 1fr">
+      <div><label>회사명</label><input id="s_cname"></div>
+      <div><label>로고 안 글자</label><input id="s_logo"></div>
+      <div><label>주소</label><input id="s_addr"></div>
+      <div><label>Tax ID</label><input id="s_tax"></div>
+      <div style="grid-column:span 2"><label>여행 제목 (고객 성함 뒤에 인쇄)</label><input id="s_trip" placeholder="파타야 골프 여행"></div>
+      <div><label>문의 1</label><input id="s_c1"></div>
+      <div><label>문의 2</label><input id="s_c2"></div>
+      <div style="grid-column:span 2"><label>입금계좌 문구</label><input id="s_bank"></div>
+      <div style="grid-column:span 2"><label>견적서 하단 유효기간 문구 (줄바꿈 가능)</label><textarea id="s_valid" rows="2" style="width:100%"></textarea></div>
+      <div><label>호텔 1실 기본단가 (THB/1박)</label><input id="s_roomrate" type="number" class="num"></div>
+      <div><label>풀빌라 1일 기본단가 (THB/1박, 통째)</label><input id="s_villarate" type="number" class="num"></div>
+      <div><label>새 견적 기본 환율 (1 THB = ? 원)</label><input id="s_fx" type="number" step="0.01" class="num"></div>
+      <div><label>차량 1대 1일 기본단가 (THB)</label><input id="s_carrate" type="number" class="num"></div>
+      <div><label>차량 1일 기준시간</label><input id="s_carhours" type="number" class="num"></div>
+      <div><label>공항 픽업/샌딩 차량 1대 단가 (THB)</label><input id="s_transferrate" type="number" class="num"></div>
+      <div style="grid-column:span 2"><label>호텔 목록 (쉼표로 구분, 첫 번째가 기본값)</label><input id="s_hotels" placeholder="시암스카이 호텔, ○○ 호텔"></div>
+      <div style="display:flex;align-items:flex-end"><button class="primary" id="btnSaveSet">설정 저장</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>사용법</h2>
+    <div class="body hint">
+      · <b>단가 자동</b> — 날짜와 골프장을 고르면 날짜로 <b>시즌(High/Low)</b>과 <b>평일/주말</b>을 판단해 단가표의 Total을 넣습니다. <b>태국 공휴일</b>(단가표 탭에서 관리)은 자동으로 공휴일(주말요금)이 됩니다. 특별한 경우 시즌·요금 칸을 직접 바꾸면 됩니다.<br>
+      · <b>단가 직접 수정</b> — 단가 칸에 숫자를 직접 쓰면 <span class="tag">직접</span> 표시가 붙고 자동계산을 덮어씁니다. 되돌리려면 칸을 비우세요.<br>
+      · <b>27홀·36홀</b> — 27H는 그 날짜의 18H+9H 단가, 36H는 18H×2 단가가 자동으로 들어갑니다. 9H 단가가 없는 골프장은 27H 단가를 직접 입력하세요.<br>
+      · <b>골프장 목록에 없는 코스</b> — 골프장 선택에서 <b>직접입력</b>을 고르고 이름·단가를 쓰면 됩니다.<br>
+      · <b>데이터 보관</b> — 이 컴퓨터의 브라우저에 저장됩니다. 다른 PC로 옮기려면 <b>저장 목록 → 전체 백업</b>을 이용하세요.<br>
+      · 파일을 USB에 복사해 다른 PC에서 더블클릭해도 그대로 동작합니다(저장 내용은 백업파일로 옮기세요).
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ============================================================
+   골프장 단가 데이터  [Green, Caddy, Cart, Total]  (null = All Inc)
+   L = Low Season 2026 / H = High Season 2026-27
+   ============================================================ */
+const BASE = [
+ {k:'laem',n:'Laemchabang',ko:'램차방',
+  L:{vg:[3000,4000],w18:[2400,450,980,3830],w9:[1350,300,500,2150],e18:[2700,null,null,4130],e9:[1500,null,null,2300],term:'4/1~9/30',gal:600,sp:null},
+  H:{vg:[3500,4000],w18:[2750,450,980,4180],w9:[1400,300,500,2200],e18:[3100,null,null,4530],e9:[1600,null,null,2400],term:'10/1~3/31',gal:600,sp:null}},
+ {k:'laemN',n:'Laemchabang(N)',ko:'램차방 N코스',
+  L:null,
+  H:{vg:[3500,4000],w18:[2750,450,980,4180],w9:[1400,300,500,2200],e18:[2750,null,null,4180],e9:[1400,null,null,2200],term:'10/1~3/31',gal:600,sp:null}},
+ {k:'siambk',n:'Siam Bangkok',ko:'시암 방콕',
+  L:{vg:[5600,6600],w18:[3400,500,1000,4900],w9:[2050,300,600,2950],e18:[4800,null,null,6300],e9:[2700,null,null,3600],term:'4/1~10/31',gal:2500,sp:null},
+  H:{vg:[5600,6600],w18:[3500,500,1000,5000],w9:[1950,300,600,2850],e18:[4500,null,null,6000],e9:[2500,null,null,3400],term:'11/1~3/31',gal:2500,sp:null}},
+ {k:'siamold',n:'Siam Old Course',ko:'시암 올드',
+  L:{vg:[6500,8500],w18:[3800,500,1000,5300],w9:[2200,300,600,3100],e18:[5250,null,null,6750],e9:[2900,null,null,3800],term:'4/1~10/31',gal:2500,sp:null},
+  H:{vg:[6500,8500],w18:[4300,500,1000,5800],w9:[2150,300,600,3050],e18:[5500,null,null,7000],e9:[2850,null,null,3750],term:'11/1~3/31',gal:2500,sp:null}},
+ {k:'siamplan',n:'Siam Plantation',ko:'시암 플랜테이션',
+  L:{vg:[5600,6600],w18:[3100,500,1000,4600],w9:[1800,300,600,2700],e18:[4100,null,null,5600],e9:[2200,null,null,3100],term:'4/1~10/31',gal:2500,sp:null},
+  H:{vg:[5600,6600],w18:[3600,500,1000,5100],w9:[1850,300,600,2750],e18:[4500,null,null,6000],e9:[2250,null,null,3150],term:'11/1~3/31',gal:2500,sp:null}},
+ {k:'siamroll',n:'Siam Rolling Hills',ko:'시암 롤링힐스',
+  L:{vg:[5600,6600],w18:[3100,500,1000,4600],w9:[1800,300,600,2700],e18:[4100,null,null,5600],e9:[2200,null,null,3100],term:'4/1~10/31',gal:2500,sp:null},
+  H:{vg:[5600,6600],w18:[3600,500,1000,5100],w9:[1850,300,600,2750],e18:[4500,null,null,6000],e9:[2250,null,null,3150],term:'11/1~3/31',gal:2500,sp:null}},
+ {k:'siamwater',n:'Siam Waterside',ko:'시암 워터사이드',
+  L:{vg:[5600,6600],w18:[3100,500,1000,4600],w9:[1800,300,600,2700],e18:[4100,null,null,5600],e9:[2200,null,null,3100],term:'4/1~10/31',gal:2500,sp:null},
+  H:{vg:[5600,6600],w18:[3600,500,1000,5100],w9:[1850,300,600,2750],e18:[4500,null,null,6000],e9:[2250,null,null,3150],term:'11/1~3/31',gal:2500,sp:null}},
+ {k:'cheechan',n:'Chee Chan',ko:'치짠 마운틴',
+  L:{vg:[4500,5500],w18:[3400,450,850,4700],w9:[2350,250,450,3050],e18:[4200,null,null,5500],e9:[2850,null,null,3550],term:'4/1~9/30',gal:1500,sp:null},
+  H:{vg:[4500,5500],w18:[3700,450,850,5000],w9:[2750,250,450,3450],e18:[4500,null,null,5800],e9:[3250,null,null,3950],term:'10/1~3/31',gal:1500,sp:null}},
+ {k:'phoenix',n:'Phoenix',ko:'피닉스',
+  L:{vg:[3000,3500],w18:[1400,400,700,2500],w9:[800,200,350,1350],e18:[1900,null,null,3000],e9:[1050,null,null,1600],term:'4/1~10/31',gal:500,sp:{d:'화',t18:2300,t9:null,memo:'9H ~4/30'}},
+  H:{vg:[3000,3500],w18:[1900,400,700,3000],w9:[1100,200,350,1650],e18:[2200,null,null,3300],e9:[1200,null,null,1750],term:'11/1~3/31',gal:500,sp:null}},
+ {k:'burapha',n:'Burapha',ko:'부라파',
+  L:{vg:[3850,4250],w18:[1200,400,850,2450],w9:[650,200,450,1300],e18:[1500,null,null,2750],e9:[800,null,null,1450],term:'4/1~10/31',gal:500,sp:{d:'월,수',t18:2150,t9:null}},
+  H:{vg:[3850,4250],w18:[1800,400,850,3050],w9:[950,200,450,1600],e18:[2200,null,null,3450],e9:[1150,null,null,1800],term:'11/1~3/31',gal:500,sp:null}},
+ {k:'pattana',n:'Pattana',ko:'파타나',
+  L:{vg:[2500,3600],w18:[1300,400,800,2500],w9:[900,200,400,1500],e18:[1800,null,null,3000],e9:[1300,null,null,1900],term:'4/1~10/31',gal:800,sp:{d:'화',t18:2000,t9:null}},
+  H:{vg:[2500,3600],w18:null,w9:null,e18:null,e9:null,term:'11/1~3/31',gal:800,sp:null,tbd:1}},
+ {k:'khaokheow',n:'Khao Kheow',ko:'카오키여우',
+  L:{vg:[2000,3000],w18:[null,null,null,1950],w9:[550,200,350,1100],e18:[null,null,null,2550],e9:[850,null,null,1400],term:'4/1~6/30',gal:500,sp:{d:'월,목',t18:1750,t9:null}},
+  H:{vg:[2000,3000],w18:[1250,400,700,2350],w9:[700,250,400,1350],e18:[1650,null,null,2750],e9:[900,null,null,1550],term:'11/1~3/31',gal:500,sp:null}},
+ {k:'pattayacc',n:'Pattaya CC',ko:'파타야 CC',
+  L:{vg:[2500,3000],w18:[900,400,700,2000],w9:[600,200,350,1150],e18:[1100,null,null,2200],e9:[700,null,null,1250],term:'4/1~10/31',gal:500,sp:{d:'화',t18:1900,t9:null}},
+  H:{vg:[2500,3000],w18:[1700,400,700,2800],w9:[900,200,350,1450],e18:[1900,null,null,3000],e9:[1000,null,null,1550],term:'11/1~3/31',gal:500,sp:null}},
+ {k:'pattavia',n:'Pattavia',ko:'파타비아',
+  L:{vg:[1300,2000],w18:[500,350,600,1450],w9:[500,200,300,1000],e18:[800,null,null,1750],e9:[700,null,null,1200],term:'4/1~6/30',gal:500,sp:null},
+  H:{vg:[1300,2000],w18:null,w9:null,e18:null,e9:null,term:'11/1~3/31',gal:500,sp:null,tbd:1}},
+ {k:'treasure',n:'Treasure Hill',ko:'트레져힐',
+  L:{vg:[1500,2000],w18:[500,380,700,1580],w9:[300,220,400,920],e18:[600,null,null,1680],e9:[350,null,null,970],term:'4/1~10/31',gal:500,sp:null},
+  H:{vg:[1500,2000],w18:null,w9:null,e18:null,e9:null,term:'11/1~3/31',gal:500,sp:null,tbd:1}},
+ {k:'plutaluang',n:'Plutaluang',ko:'플루타루앙',
+  L:{vg:[1500,2000],w18:[null,null,null,1300],w9:[null,null,null,1000],e18:[null,null,null,1400],e9:[null,null,null,1100],term:'4/1~10/31',gal:300,sp:null},
+  H:{vg:[1500,2000],w18:null,w9:null,e18:null,e9:null,term:'11/1~3/31',gal:300,sp:null,tbd:1}},
+ {k:'eaststar',n:'Eastern Star',ko:'이스턴스타',
+  L:{vg:[1500,2000],w18:[null,null,null,2350],w9:[null,null,null,1400],e18:[null,null,null,3400],e9:[null,null,null,1700],term:'4/1~4/30',gal:'300/500',sp:null},
+  H:{vg:[1500,2000],w18:null,w9:null,e18:null,e9:null,term:'11/1~3/31',gal:'300/500',sp:null,tbd:1}},
+ {k:'greenwood',n:'Green Wood',ko:'그린우드',
+  L:{vg:[1500,2000],w18:[650,350,600,1600],w9:[300,200,300,800],e18:[850,null,null,1800],e9:[400,null,null,900],term:'4/1~4/30',gal:1300,sp:null},
+  H:{vg:[1500,2000],w18:null,w9:null,e18:null,e9:null,term:'11/1~3/31',gal:1300,sp:null,tbd:1}},
+ {k:'bangpra',n:'Bangpra Golf Club',ko:'방프라',
+  L:{vg:[2000,3000],w18:[null,null,null,1650],w9:[null,null,null,1100],e18:[null,null,null,2150],e9:[null,null,null,1300],term:'4/1~10/31',gal:500,sp:{d:'월,수',t18:1650,t9:null}},
+  H:{vg:[2000,3000],w18:null,w9:null,e18:null,e9:null,term:'11/1~3/31',gal:500,sp:null,tbd:1}},
+ {k:'hermes',n:'Hermes',ko:'헤르메스',
+  L:{vg:[null,null],w18:[null,null,null,2000],w9:[null,null,null,1250],e18:[null,null,null,2300],e9:[null,null,null,1400],term:'4/1~6/30',gal:1300,sp:null},
+  H:{vg:[null,null],w18:null,w9:null,e18:null,e9:null,term:'11/1~3/31',gal:1300,sp:null,tbd:1}},
+ {k:'soidao',n:'Soi Dao (Chanthaburi)',ko:'소이다오',
+  L:{vg:[null,null],w18:[1100,400,800,2300],w9:[600,250,400,1250],e18:[1400,null,null,2600],e9:[800,null,null,1450],term:'4/1~10/31',gal:500,sp:null},
+  H:{vg:[null,null],w18:[1200,400,800,2400],w9:[900,250,400,1550],e18:[1500,null,null,2700],e9:[1200,null,null,1850],term:'11/1~3/31',gal:500,sp:null}},
+];
+
+/* 단가표에 없는 자주 쓰는 항목 (단가 직접입력) */
+const QUICK = [
+  {k:'q_amata', n:'아마타스프링', price:7400, unit:'pax'},
+  {k:'q_rest',  n:'휴식 (골프 없음)', price:0, unit:'pax'},
+  {k:'q_pickup', n:'차량 공항픽업', price:2500, unit:'대', hidden:true},
+  {k:'q_send',   n:'차량 공항샌딩', price:2500, unit:'대', hidden:true},
+];
+
+/* ============================================================ 저장소 */
+const LS = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){ alert('저장 공간이 부족합니다.'); } }
+};
+const K_CUR='golfq.current', K_LIST='golfq.list', K_SET='golfq.settings', K_OV='golfq.priceOverride';
+
+const DEF_SET = {
+  cname:'Global Cavin Bizcom Co.,Ltd.',
+  logo:'SKY GOLF',
+  addr:'50/26 M.9 Pong, Banglamung, Chonburi 20150',
+  tax:'Tax ID: 0105557103804',
+  trip:'파타야 골프 여행',
+  valid:'이 견적은 작성일로부터 14일간 유효합니다.\n골프장 예약 확정 후 요금이 변동될 수 있습니다.',
+  c1:'문경수 대표 099-087-4191',
+  c2:'김성준 이사 099-430-1284',
+  bank:'농협 352-1791-8727-63 정상이',
+  hotels:'시암스카이 호텔, 풀빌라',
+  roomrate:2500,
+  villarate:0,
+  fx:42,
+  carrate:3000,
+  carhours:12,
+  transferrate:2500
+};
+let SET = Object.assign({}, DEF_SET, LS.get(K_SET,{}));
+let OV  = LS.get(K_OV,{});          // {courseKey:{L:{w18:3830,...},H:{...}}}
+/* 사용자 골프장 편집: add=직접 추가한 골프장(전체 객체), del=숨긴 기본 골프장, edit=기본 골프장의 이름/그린피/기간/스포츠데이 수정 */
+const K_CX='golfq.courses';
+let CX = Object.assign({add:[],del:{},edit:{}}, LS.get(K_CX,{}));
+let COURSES=[];
+function blankSeason(term){ return {vg:[null,null],w18:null,w9:null,e18:null,e9:null,term:term||'',gal:null,sp:null,tbd:1}; }
+function mergeCourse(b,e){
+  if(!e) return b;
+  const c=Object.assign({},b); if(e.ko!=null) c.ko=e.ko; if(e.n!=null) c.n=e.n;
+  ['L','H'].forEach(se=>{ const x=e[se]; if(!x) return;
+    const s=Object.assign({},b[se]||blankSeason(''));
+    s.vg=[x.vg0!==undefined?x.vg0:(b[se]&&b[se].vg?b[se].vg[0]:null), x.vg1!==undefined?x.vg1:(b[se]&&b[se].vg?b[se].vg[1]:null)];
+    if(x.term!=null) s.term=x.term;
+    if(x.sp!==undefined) s.sp=x.sp;
+    c[se]=s; });
+  return c;
+}
+function buildCourses(){
+  const list=[];
+  BASE.forEach(b=>{ if(CX.del[b.k]) return; list.push(mergeCourse(b,CX.edit[b.k])); });
+  (CX.add||[]).forEach(u=>list.push(u));
+  COURSES=list;
+}
+function saveCX(){ LS.set(K_CX,CX); buildCourses(); }
+function isUserCourse(k){ return (CX.add||[]).some(c=>c.k===k); }
+buildCourses();
+
+/* ============================================================ 유틸 */
+const $  = s=>document.querySelector(s);
+const $$ = s=>Array.from(document.querySelectorAll(s));
+const uid = ()=> 'r'+Math.random().toString(36).slice(2,9);
+const nz  = v => { const n=parseFloat(String(v).replace(/,/g,'')); return isFinite(n)?n:0; };
+const fmt2 = n => n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt0 = n => Math.round(n).toLocaleString('en-US');
+const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const manwon = n => n>=10000 ? fmt0(n/10000)+'만원' : fmt0(n)+'원';
+const DAY_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAY_KO = ['일','월','화','수','목','금','토'];
+function parseDate(s){ if(!s) return null; const p=s.split('-'); if(p.length<3) return null; const d=new Date(+p[0],+p[1]-1,+p[2]); return isNaN(d)?null:d; }
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function addDays(s,n){ const d=parseDate(s); if(!d) return s; d.setDate(d.getDate()+n);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function dmy(s){ const d=parseDate(s); if(!d) return ''; return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate(); }
+
+/* 시즌 판정: 11,12,1,2,3월 = High / 나머지 = Low */
+function autoSeason(dateStr){ const d=parseDate(dateStr); if(!d) return 'H'; const m=d.getMonth()+1; return (m>=11||m<=3)?'H':'L'; }
+/* ============================================================ 태국 공휴일 (정부 공휴일 + 대체휴일) */
+const DEF_HOL = {
+  // 2026
+  '2026-01-01':'신정 (New Year\'s Day)',
+  '2026-01-02':'신정 연휴 특별휴일',
+  '2026-03-03':'마카부차 (Makha Bucha)',
+  '2026-04-06':'짜끄리 왕조 기념일 (Chakri Day)',
+  '2026-04-13':'송끄란 (Songkran)',
+  '2026-04-14':'송끄란 (Songkran)',
+  '2026-04-15':'송끄란 (Songkran)',
+  '2026-05-01':'노동절 (Labour Day)',
+  '2026-05-04':'대관식 기념일 (Coronation Day)',
+  '2026-05-31':'위사카부차 (Visakha Bucha)',
+  '2026-06-01':'위사카부차 대체휴일',
+  '2026-06-03':'왕비 생신 (Queen Suthida\'s Birthday)',
+  '2026-07-28':'국왕 생신 (King Vajiralongkorn\'s Birthday)',
+  '2026-07-29':'아산하부차 (Asahna Bucha)',
+  '2026-07-30':'카오판사 (Buddhist Lent)',
+  '2026-08-12':'왕대비 생신·어머니날 (Queen Mother\'s Birthday)',
+  '2026-10-13':'라마 9세 기일 (King Bhumibol Memorial Day)',
+  '2026-10-23':'쭐라롱꼰 대왕 기념일 (Chulalongkorn Day)',
+  '2026-12-05':'라마 9세 탄신일·아버지날 (Father\'s Day)',
+  '2026-12-07':'아버지날 대체휴일',
+  '2026-12-10':'제헌절 (Constitution Day)',
+  '2026-12-31':'섣달그믐 (New Year\'s Eve)',
+  // 2027 (불교 명절은 음력 기준 예상일 - 정부 확정 시 수정)
+  '2027-01-01':'신정 (New Year\'s Day)',
+  '2027-02-21':'마카부차 (Makha Bucha)',
+  '2027-02-22':'마카부차 대체휴일',
+  '2027-04-06':'짜끄리 왕조 기념일 (Chakri Day)',
+  '2027-04-13':'송끄란 (Songkran)',
+  '2027-04-14':'송끄란 (Songkran)',
+  '2027-04-15':'송끄란 (Songkran)',
+  '2027-05-01':'노동절 (Labour Day)',
+  '2027-05-03':'노동절 대체휴일',
+  '2027-05-04':'대관식 기념일 (Coronation Day)',
+  '2027-05-20':'위사카부차 (Visakha Bucha)',
+  '2027-06-03':'왕비 생신 (Queen Suthida\'s Birthday)',
+  '2027-07-18':'아산하부차 (Asahna Bucha)',
+  '2027-07-19':'카오판사 (Buddhist Lent)',
+  '2027-07-20':'아산하부차 대체휴일',
+  '2027-07-28':'국왕 생신 (King Vajiralongkorn\'s Birthday)',
+  '2027-08-12':'왕대비 생신·어머니날 (Queen Mother\'s Birthday)',
+  '2027-10-13':'라마 9세 기일 (King Bhumibol Memorial Day)',
+  '2027-10-23':'쭐라롱꼰 대왕 기념일 (Chulalongkorn Day)',
+  '2027-10-25':'쭐라롱꼰 대왕 기념일 대체휴일',
+  '2027-12-05':'라마 9세 탄신일·아버지날 (Father\'s Day)',
+  '2027-12-06':'아버지날 대체휴일',
+  '2027-12-10':'제헌절 (Constitution Day)',
+  '2027-12-31':'섣달그믐 (New Year\'s Eve)',
+};
+const K_HOL='golfq.holidays';
+let HOLX = Object.assign({add:{},del:{}}, LS.get(K_HOL,{}));   // add:{날짜:이름} 직접 추가 / del:{날짜:true} 기본목록에서 제외
+function holidayName(dateStr){
+  if(!dateStr) return null;
+  if(HOLX.del[dateStr]) return null;
+  return HOLX.add[dateStr] || DEF_HOL[dateStr] || null;
+}
+function allHolidays(){   // [{d,name,src:'def'|'add',off:bool}] 날짜순
+  const m={};
+  Object.keys(DEF_HOL).forEach(d=>m[d]={d,name:DEF_HOL[d],src:'def',off:!!HOLX.del[d]});
+  Object.keys(HOLX.add).forEach(d=>m[d]={d,name:HOLX.add[d],src:'add',off:false});
+  return Object.values(m).sort((a,b)=>a.d<b.d?-1:1);
+}
+/* 요금 판정: 공휴일 → 토,일 → 평일 */
+function autoRate(dateStr){ const d=parseDate(dateStr); if(!d) return 'wd'; if(holidayName(dateStr)) return 'hol'; const w=d.getDay(); return (w===0||w===6)?'we':'wd'; }
+
+function course(k){ return COURSES.find(c=>c.k===k)||BASE.find(c=>c.k===k)||null; }
+/* 단가표 Total 조회 (override 반영) */
+function tableTotal(ck, season, rate, holes){
+  const c=course(ck); if(!c) return null;
+  const pre = (rate==='we'||rate==='hol')?'e':'w';
+  if(holes==='27'){ const a=tableCell(ck,season,pre+'18'), b=tableCell(ck,season,pre+'9'); return (a==null||b==null)?null:a+b; }   // 27홀 = 18H + 9H
+  if(holes==='36'){ const a=tableCell(ck,season,pre+'18'); return a==null?null:a*2; }                                           // 36홀 = 18H × 2
+  const key = holes==='gal' ? 'gal' : pre+holes;
+  return tableCell(ck,season,key);
+}
+function tableCell(ck,season,key){
+  const o=OV[ck]&&OV[ck][season]&&OV[ck][season][key];
+  if(o!=null&&o!=='') return nz(o);
+  const c=course(ck); const s=c&&c[season]; if(!s) return null;
+  if(key==='gal') return s.gal!=null&&isFinite(+s.gal)?+s.gal:null;
+  const a=s[key];
+  return a?a[3]:null;
+}
+
+/* ============================================================ 상태 */
+function blankRow(o){ return Object.assign({id:uid(),date:'',ck:'',cname:'',holes:'18',season:'auto',rate:'auto',desc:'',qty:'',unit:'pax',price:'',manual:false,extra:'',extraDesc:'',extraMode:'pp'},o||{}); }
+function blankItem(o){ return Object.assign({id:uid(),type:'item',no:true,name:'',sub:'',qty:'',unit:'',price:'',amtManual:''},o||{}); }
+function hotelList(){ return String(SET.hotels||'시암스카이 호텔').split(',').map(x=>x.trim()).filter(Boolean); }
+function hotelItem(o){ return Object.assign(blankItem({type:'hotel',name:hotelList()[0]||'시암스카이 호텔',hname:'',cin:'',cout:'',rooms:'',rrate:'',ppl:'2',bf:true,mode:'room',subManual:'',note:'',unit:''}),o||{}); }
+function carItem(o){ return Object.assign(blankItem({type:'car',ctype:'차량',cname:'',cars:'',days:'',crate:'',hours:'',incl:'유류,기사,톨비포함',nameManual:'',note:'',unit:''}),o||{}); }
+function carInfo(it){
+  const cars=nz(it.cars)||1;
+  const days=(it.days!==''&&it.days!=null)?nz(it.days):golfDays().length;
+  const crate=(it.crate!==''&&it.crate!=null)?nz(it.crate):(nz(SET.carrate)||0);
+  const hours=(it.hours!==''&&it.hours!=null)?it.hours:(SET.carhours||12);
+  const ctype = it.ctype==='__custom' ? (it.cname||'차량') : (it.ctype||'차량');
+  const autoName = '차량비용 (총'+(days||'_')+'일'+ctype+(cars||'_')+'대)';
+  const name = it.nameManual!=='' ? it.nameManual : autoName;
+  const autoNote = crate ? '**1일 '+hours+'시간기준 '+(it.incl||'')+' '+fmt0(crate)+'바트' : '';
+  const note = it.note!=='' ? it.note : autoNote;
+  const qty=(it.qty!==''&&it.qty!=null)?nz(it.qty):cars;
+  const price=(it.price!==''&&it.price!=null)?nz(it.price):crate;
+  const unit = it.unit!=='' ? it.unit : (days?days+'일':'');
+  return {ctype,cars,days,crate,hours,name,autoName,note,autoNote,qty,price,unit,qtyLabel:qty?qty+'대':'',amount:qty*days*price};
+}
+function transferItem(o){ return Object.assign(blankItem({type:'transfer',dir:'pickup',date:'',cars:'',trate:'',flight:'',unit:'대'}),o||{}); }
+function transferAutoDate(dir){ const g=golfDays(), hd=hotelDates(); return dir==='send' ? (hd.cout || g[g.length-1] || Q.pto || '') : (hd.cin || g[0] || Q.pfrom || ''); }
+function transferInfo(it){
+  const date = it.date || transferAutoDate(it.dir);
+  const d=parseDate(date);
+  const label = it.dir==='send' ? '차량 공항샌딩' : '차량 공항픽업';
+  const name = label + (d? '  '+dmy(date)+' ('+DAY_EN[d.getDay()]+')' : '') + (it.flight? '  '+it.flight : '');
+  const trate=(it.trate!==''&&it.trate!=null)?nz(it.trate):(nz(SET.transferrate)||0);
+  const qty=(it.qty!==''&&it.qty!=null)?nz(it.qty):(nz(it.cars)||1);
+  const price=(it.price!==''&&it.price!=null)?nz(it.price):trate;
+  return {label,name,date,trate,qty,price,unit:it.unit||'대',amount:qty*price};
+}
+function golfDays(){ return [...new Set(Q.rows.filter(r=>r.date).map(r=>r.date))].sort(); }
+function nightsBetween(a,b){ const d1=parseDate(a), d2=parseDate(b); if(!d1||!d2) return 0; return Math.max(0,Math.round((d2-d1)/86400000)); }
+function isVillaName(n){ return /풀빌라|풀\s*빌라|villa/i.test(String(n||'')); }
+function hotelBasis(it){ if(it.basis==='room'||it.basis==='day') return it.basis; return isVillaName(it.name==='__custom'?it.hname:it.name)?'day':'room'; }
+function hotelInfo(it){
+  const name = it.name==='__custom' ? (it.hname||'') : it.name;
+  const villa = hotelBasis(it)==='day';
+  const nights = nightsBetween(it.cin,it.cout);
+  const rooms = villa ? 1 : (nz(it.rooms)||0);
+  const rrate = (it.rrate!==''&&it.rrate!=null) ? nz(it.rrate) : (villa ? (nz(SET.villarate)||0) : (nz(SET.roomrate)||0));
+  const perPax = false;
+  const autoSub = (it.cin?dmy(it.cin)+' (IN)':'') + (it.cin||it.cout?' ~ ':'') + (it.cout?dmy(it.cout)+' (OUT)':'')
+    + (nights?'  ['+nights+'박 '+(nights+1)+'일]':'') + (!villa&&rooms?'    방'+rooms+'개':'');
+  const sub = it.subManual!=='' ? it.subManual : autoSub;
+  // 방 기준: 수량=박수, 단가=방수×1실단가 / 1인 기준: 수량=인원, 단가=1인단가×박수
+  const autoPrice = rooms*rrate;
+  const price = (it.price!==''&&it.price!=null) ? nz(it.price) : autoPrice;
+  const qty = (it.qty!==''&&it.qty!=null) ? nz(it.qty) : nights;
+  const unit = it.unit!=='' ? it.unit : 'day';
+  const autoNote = rrate ? '※ '+fmt0(rrate)+'밧 / '+(villa?'1일 (풀빌라 전체) 기준 ':(it.ppl||'2')+'인 1실 기준 ')+(it.bf?'(조식포함)':'(조식불포함)') : '';
+  const note = it.note!=='' ? it.note : autoNote;
+  return {name,nights,rooms,rrate,villa,sub,autoSub,price,autoPrice,qty,unit,perPax,note,autoNote,amount:qty*price};
+}
+
+function newQuote(){
+  return {
+    no: nextNo(),
+    date: todayStr(),
+    name:'', pax:'', period:'',
+    rows:[blankRow()],
+    golfnote:'※ 전동카 및 캐디피 (1인1캐디,카트)포함.',
+    items:[hotelItem(),transferItem({dir:'pickup'}),carItem(),transferItem({dir:'send'})],
+    fx:nz(SET.fx)||42, fxAt:'',
+    remark:'*Hotel room price is included VAT 7% / 숙박 부가세 7% 포함.\n*Deposit for room\'s keycard 500 THB pay when arrived and refound when check-out /\n호텔 룸 키카드 보증금 500밧 지급요청 check-out시 환불'
+  };
+}
+function nextNo(){
+  const list=LS.get(K_LIST,[]);
+  let max=0; list.forEach(q=>{ const m=String(q.no||'').match(/(\d+)\s*$/); if(m) max=Math.max(max,+m[1]); });
+  return 'Quotation No.'+String(max+1).padStart(4,'0');
+}
+let Q = LS.get(K_CUR,null) || newQuote();
+if(!Q.rows||!Q.rows.length) Q.rows=[blankRow()];
+if(!Q.items) Q.items=[];
+if(!(nz(Q.fx)>0)) Q.fx=nz(SET.fx)||42;
+
+/* ============================================================ 계산 */
+function rowInfo(r){
+  const season = r.season==='auto' ? autoSeason(r.date) : r.season;
+  const rate   = r.rate==='auto'   ? autoRate(r.date)   : r.rate;
+  let auto=null, na=false;
+  if(r.ck && !r.ck.startsWith('q_') && r.ck!=='custom'){
+    auto = tableTotal(r.ck, season, rate, r.holes);
+    if(auto==null){
+      // High 미정이면 Low 로 대체 시도
+      const alt = tableTotal(r.ck, season==='H'?'L':'H', rate, r.holes);
+      if(alt!=null){ auto=alt; na='alt'; } else na=true;
+    }
+  } else if(r.ck && r.ck.startsWith('q_')){
+    const q=QUICK.find(x=>x.k===r.ck); auto=q?q.price:null;
+  }
+  const price = (r.manual && r.price!=='') ? nz(r.price) : (auto==null?0:auto);
+  const qty = (r.qty!==''&&r.qty!=null) ? nz(r.qty) : (nz(Q.pax)||0);
+  const extra = nz(r.extra)||0;
+  const extraPP = (r.extraMode||'pp')==='pp';
+  const extraAmt = extraPP ? qty*extra : extra;
+  const unitPrice = extraPP ? price+extra : price;
+  return {season,rate,auto,na,price,qty,extra,extraPP,extraAmt,unitPrice,amount:qty*price+extraAmt};
+}
+function itemAmount(it){
+  if(it.type==='note') return 0;
+  if(it.type==='hotel') return hotelInfo(it).amount;
+  if(it.type==='car') return carInfo(it).amount;
+  if(it.type==='transfer') return transferInfo(it).amount;
+  if(it.amtManual!=='' && it.amtManual!=null) return nz(it.amtManual);
+  const p=nz(it.price)||0;
+  const q=(it.qty!==''&&it.qty!=null) ? nz(it.qty) : (/^pax$/i.test(String(it.unit||'').trim()) ? (nz(Q.pax)||0) : (p?1:0));
+  return q*p;
+}
+function totals(){
+  let golf=0; Q.rows.forEach(r=>{ golf+=rowInfo(r).amount; });
+  let item=0, hotel=0, car=0, other=0;
+  Q.items.forEach(i=>{ const a=itemAmount(i); item+=a; if(i.type==='hotel') hotel+=a; else if(i.type==='car'||i.type==='transfer') car+=a; else other+=a; });
+  const total=golf+item;
+  const vat=0, grand=total;
+  const pax=nz(Q.pax)||0;
+  const pp = pax>0 ? grand/pax : 0;
+  return {golf,item,hotel,car,other,total,vat,grand,pp,ppw:pp*fxRate()};
+}
+
+/* ============================================================ 편집화면 그리기 */
+function courseOptions(sel){
+  let h='<option value="">— 선택 —</option><optgroup label="파타야 골프장">';
+  COURSES.forEach(c=>{ h+=`<option value="${c.k}" ${sel===c.k?'selected':''}>${esc(c.ko)} · ${esc(c.n)}</option>`; });
+  if(sel && !COURSES.some(c=>c.k===sel) && course(sel)) h+=`<option value="${sel}" selected>${esc(course(sel).ko)} (삭제된 골프장)</option>`;
+  h+='</optgroup><optgroup label="자주쓰는 항목">';
+  QUICK.forEach(c=>{ if(c.hidden&&sel!==c.k) return; h+=`<option value="${c.k}" ${sel===c.k?'selected':''}>${esc(c.n)}</option>`; });
+  h+=`</optgroup><option value="custom" ${sel==='custom'?'selected':''}>직접입력…</option>`;
+  return h;
+}
+function renderGolf(){
+  const tb=$('#golfTable tbody'); let h='';
+  Q.rows.forEach((r,i)=>{
+    const inf=rowInfo(r);
+    const d=parseDate(r.date);
+    const dayEn = d?DAY_EN[d.getDay()]:'';
+    const hol = holidayName(r.date);
+    const we = d && (d.getDay()===0||d.getDay()===6||hol);
+    const rateTxt = r.rate==='auto' ? (inf.rate==='hol'?'<span class="tag h">공휴일</span>':inf.rate==='we'?'<span class="tag h">주말</span>':'<span class="tag na">평일</span>') : '';
+    const isCourse = !!(r.ck && !r.ck.startsWith('q_') && r.ck!=='custom');
+    const stag = inf.na===true ? '<span class="tag na">단가없음</span>'
+      : `<span class="tag ${inf.season==='H'?'h':''}">${inf.season==='H'?'High':'Low'}</span>${inf.na==='alt'?'<span class="tag na" title="해당 시즌 단가 미정 - 다른 시즌 단가 표시">대체</span>':''}`;
+    h+=`<tr data-id="${r.id}" class="${we?'we':''}">
+      <td style="text-align:center;color:#8a918d">${i+1}</td>
+      <td><input type="date" data-f="date" value="${esc(r.date)}"></td>
+      <td style="text-align:center;font-weight:700;${we?'color:#d2453c':''}" ${hol?`title="${esc(hol)}"`:''}>${dayEn}${hol?'<div style="font-size:10px;line-height:1.1">休</div>':''}</td>
+      <td>${r.ck==='custom'
+        ? `<div style="display:flex;gap:3px"><select data-f="ck" style="width:76px">${courseOptions(r.ck)}</select><input data-f="cname" value="${esc(r.cname)}" placeholder="이름 직접입력"></div>`
+        : `<select data-f="ck">${courseOptions(r.ck)}</select>`}</td>
+      <td><select data-f="holes" ${r.ck&&(r.ck.startsWith('q_')||r.ck==='custom')?'disabled':''}>
+            <option value="18" ${r.holes==='18'?'selected':''}>18H</option>
+            <option value="9" ${r.holes==='9'?'selected':''}>9H</option>
+            <option value="27" ${r.holes==='27'?'selected':''}>27H (18H+9H)</option>
+            <option value="36" ${r.holes==='36'?'selected':''}>36H (18H×2)</option>
+            <option value="gal" ${r.holes==='gal'?'selected':''}>갤러리(동반)</option></select></td>
+      ${!isCourse ? '<td colspan="2" style="text-align:center;color:#b5bbb8;font-size:12px">단가 직접입력</td>' : `
+      <td style="text-align:center"><select data-f="season" style="width:100%">
+            <option value="auto" ${r.season==='auto'?'selected':''}>자동</option>
+            <option value="H" ${r.season==='H'?'selected':''}>High</option>
+            <option value="L" ${r.season==='L'?'selected':''}>Low</option></select>
+          <div style="margin-top:2px;text-align:center">${stag}</div></td>
+      <td><select data-f="rate">
+            <option value="auto" ${r.rate==='auto'?'selected':''}>자동</option>
+            <option value="wd" ${r.rate==='wd'?'selected':''}>평일</option>
+            <option value="we" ${r.rate==='we'?'selected':''}>주말</option>
+            <option value="hol" ${r.rate==='hol'?'selected':''}>공휴일(주말요금)</option></select>
+          ${rateTxt?`<div style="margin-top:2px;text-align:center" ${hol?`title="${esc(hol)}"`:''}>${rateTxt}</div>`:''}</td>`}
+      <td><input data-f="desc" value="${esc(r.desc)}" placeholder=""></td>
+      <td><input data-f="qty" class="num" value="${esc(r.qty)}" placeholder="${esc(Q.pax||'')}"></td>
+      <td><input data-f="unit" value="${esc(r.unit)}"></td>
+      <td><input data-f="price" class="num" value="${r.manual?esc(r.price):(inf.auto==null?'':inf.auto)}"
+            style="${r.manual?'font-weight:700;color:#0b63c5':''}" title="직접 입력하면 자동단가를 덮어씁니다"></td>
+      <td><div style="display:flex;gap:3px">
+            <input data-f="extraDesc" value="${esc(r.extraDesc)}" placeholder="예) 캐디팁" style="flex:1;min-width:90px">
+            <input data-f="extra" class="num" value="${esc(r.extra)}" placeholder="0" style="width:80px;flex:none" title="1인당 추가 금액"></div></td>
+      <td class="amt" data-amt>${fmt0(inf.amount)}</td>
+      <td style="text-align:center"><button class="mini warn" data-del>✕</button></td>
+    </tr>`;
+  });
+  tb.innerHTML=h;
+}
+function renderItems(){
+  let hh='', h='', oo='';
+  Q.items.forEach(it=>{
+    if(it.type==='hotel') hh+=itemRowHtml(it);
+    else if(it.type==='car'||it.type==='transfer') h+=itemRowHtml(it);
+    else oo+=itemRowHtml(it);
+  });
+  $('#hotelWrap').innerHTML = hh || '<div class="empty">호텔 없음 — 위의 "+ 호텔 추가"를 누르세요</div>';
+  $('#carWrap').innerHTML = h || '<div class="empty">차량 없음 — 위의 버튼으로 공항픽업·샌딩·차량을 추가하세요</div>';
+  $('#otherWrap').innerHTML = oo || '<div class="empty">기타 항목 없음</div>';
+}
+function itemRowHtml(it){
+  let h='';
+  {
+    if(it.type==='transfer'){
+      const ti=transferInfo(it);
+      h+=`<div class="vcard" data-id="${it.id}"><div class="vrow">
+        <select data-f="dir" class="vt"><option value="pickup" ${it.dir!=='send'?'selected':''}>공항픽업</option><option value="send" ${it.dir==='send'?'selected':''}>공항샌딩</option></select>
+        <span class="vl">날짜</span><input type="date" data-f="date" value="${esc(it.date)}" title="비우면 ${it.dir==='send'?'체크아웃/골프 마지막날':'체크인/골프 첫날'} 자동">${!it.date&&ti.date?`<span class="vl" style="color:#0b63c5" data-autodate>(자동 ${dmy(ti.date)})</span>`:''}
+        <span class="vl">항공편</span><input data-f="flight" value="${esc(it.flight)}" placeholder="시간 / 편명 (선택)" style="width:150px">
+        <select data-f="cars">${[1,2,3,4,5,6,7,8].map(v=>`<option value="${v}" ${String(nz(it.cars)||1)===String(v)?'selected':''}>${v}대</option>`).join('')}</select>
+        <span class="op">×</span><span class="vl">1대</span><input data-f="trate" class="num" style="width:80px" value="${esc(it.trate)}" placeholder="${esc(SET.transferrate||'')}"><span class="vl">THB</span>
+        <span class="vamt"><span class="op">=</span><span data-amt>${fmt0(ti.amount)}</span><span class="unit">THB</span><button class="mini warn" data-del>✕</button></span>
+      </div></div>`;
+      return h;
+    }
+    if(it.type==='note'){
+      h+=`<div class="vcard note" data-id="${it.id}"><div class="vrow">
+        <span class="vt">비고줄</span><input data-f="name" value="${esc(it.name)}" placeholder="※ 비고 문구 (견적서에 한 줄 전체로 인쇄)" style="flex:1">
+        <span class="vamt"><button class="mini warn" data-del>✕</button></span>
+      </div></div>`;
+    } else if(it.type==='hotel'){
+      const hi=hotelInfo(it);
+      const hl=hotelList(); if(it.name!=='__custom' && !hl.includes(it.name)) hl.push(it.name);
+      const roomsSel = ['',1,2,3,4,5,6,7,8,9,10,11,12].map(v=>`<option value="${v}" ${String(it.rooms)===String(v)?'selected':''}>${v===''?'-':v+'개'}</option>`).join('');
+      h+=`<div class="hcard" data-id="${it.id}">
+        <div class="hg">
+          <label>호텔</label>
+          <div><select data-f="name" style="min-width:200px">${hl.map(n=>`<option value="${esc(n)}" ${it.name===n?'selected':''}>${esc(n)}</option>`).join('')}<option value="__custom" ${it.name==='__custom'?'selected':''}>직접입력…</option></select>
+            ${it.name==='__custom'?`<input data-f="hname" value="${esc(it.hname)}" placeholder="호텔명 직접입력" style="width:220px">`:''}</div>
+          <label>체크인</label>
+          <div><input type="date" data-f="cin" value="${esc(it.cin)}"><span class="op">→</span><span style="color:#5d6561;font-size:12px">체크아웃</span><input type="date" data-f="cout" value="${esc(it.cout)}">
+            <span class="calc" data-nights>${hi.nights?hi.nights+'박 '+(hi.nights+1)+'일':''}</span></div>
+          <label>${hi.villa?'요금':'객실'}</label>
+          <div><select data-f="basis" title="계산 기준"><option value="room" ${!hi.villa?'selected':''}>객실 기준</option><option value="day" ${hi.villa?'selected':''}>1일 기준 (풀빌라)</option></select>
+            ${hi.villa?'':`<select data-f="rooms">${roomsSel}</select><span class="op">×</span>`}<span style="font-size:12px;color:#5d6561">${hi.villa?'1일':'1실'}</span><input data-f="rrate" class="num" style="width:80px" value="${esc(it.rrate)}" placeholder="${esc((hi.villa?SET.villarate:SET.roomrate)||'')}"><span style="font-size:12px;color:#5d6561">THB</span>
+            <span class="op">×</span><span data-nights2>${hi.nights||0}</span><span style="font-size:12px;color:#5d6561">박</span><span class="op">=</span><span class="calc" data-calc>${fmt0(hi.rooms*hi.rrate*hi.nights)}</span><span style="font-size:12px;color:#5d6561">THB</span></div>
+          <label>조건</label>
+          <div>${hi.villa?'<span style="font-size:12px;color:#7b837f">풀빌라 전체 1일 요금</span>':`<select data-f="ppl"><option value="1" ${it.ppl==='1'?'selected':''}>1인1실</option><option value="2" ${(it.ppl||'2')==='2'?'selected':''}>2인1실</option><option value="3" ${it.ppl==='3'?'selected':''}>3인1실</option></select>`}
+            <label style="display:flex;align-items:center;gap:3px;white-space:nowrap;margin:0"><input type="checkbox" data-f="bf" ${it.bf?'checked':''} style="width:auto">조식포함</label></div>
+        </div>
+        <div class="hfoot"><span style="font-size:12px;color:#7b837f">견적서 표시: ${esc(hi.name)}${hi.sub?' · '+esc(hi.sub):''}</span>
+          <span class="amt"><span data-amt>${fmt0(hi.amount)}</span> <span style="font-size:12px;font-weight:400;color:#7b837f">THB</span></span>
+          <button class="mini warn" data-del>✕</button></div>
+      </div>`;
+    } else if(it.type==='car'){
+      const ci=carInfo(it);
+      const types=['차량','밴(VAN)','미니버스','버스'];
+      const gd=golfDays().length;
+      h+=`<div class="vcard" data-id="${it.id}">
+        <div class="vrow">
+          <span class="vt">차량</span>
+          <select data-f="ctype">${types.map(n=>`<option value="${n}" ${(it.ctype||'차량')===n?'selected':''}>${n}</option>`).join('')}<option value="__custom" ${it.ctype==='__custom'?'selected':''}>직접입력…</option></select>
+          ${it.ctype==='__custom'?`<input data-f="cname" value="${esc(it.cname)}" placeholder="차종 직접입력" style="width:130px">`:''}
+          <select data-f="cars">${[1,2,3,4,5,6,7,8].map(v=>`<option value="${v}" ${String(nz(it.cars)||1)===String(v)?'selected':''}>${v}대</option>`).join('')}</select>
+          <span class="op">×</span><select data-f="days" title="비우면 골프 일정 날짜 수 자동">${['',1,2,3,4,5,6,7,8,9,10,11,12,13,14].map(v=>`<option value="${v}" ${String(it.days)===String(v)?'selected':''}>${v===''?(gd?gd+'일 (자동)':'일수 -'):v+'일'}</option>`).join('')}</select>
+          <span class="op">×</span><span class="vl">1대 1일</span><input data-f="crate" class="num" style="width:80px" value="${esc(it.crate)}" placeholder="${esc(SET.carrate||'')}"><span class="vl">THB</span>
+          <span class="vamt"><span class="op">=</span><span data-amt>${fmt0(ci.amount)}</span><span class="unit">THB</span><button class="mini warn" data-del>✕</button></span>
+        </div>
+        <div class="vrow">
+          <span class="vl">조건</span><select data-f="hours">${['',8,10,12,14].map(v=>`<option value="${v}" ${String(it.hours)===String(v)?'selected':''}>${v===''?(SET.carhours||12)+'시간 (기본)':v+'시간'}</option>`).join('')}</select>
+          <select data-f="incl">${['유류,기사,톨비포함','유류,기사포함','기사포함'].map(n=>`<option value="${n}" ${(it.incl||'유류,기사,톨비포함')===n?'selected':''}>${n}</option>`).join('')}</select>
+          <span class="vl" style="color:#7b837f">견적서: ${esc(ci.name)} · ${esc(ci.note)}</span>
+        </div>
+      </div>`;
+    } else {
+      h+=`<div class="vcard item" data-id="${it.id}"><div class="vrow">
+        <span class="vt">기타</span>
+        <input data-f="name" value="${esc(it.name)}" placeholder="항목명 (예: 방콕 골프 추가비용)" style="flex:2;min-width:160px">
+        <input data-f="sub" value="${esc(it.sub)}" placeholder="상세 (선택)" style="flex:2;min-width:140px">
+        <input data-f="qty" class="num" value="${esc(it.qty)}" placeholder="${/^pax$/i.test(String(it.unit||'').trim())?(Q.pax||'인원'):'1'}" style="width:60px" title="단위가 pax면 비울 때 인원수 자동">
+        <input data-f="unit" value="${esc(it.unit)}" placeholder="pax" style="width:60px" title="단위">
+        <span class="op">×</span><input data-f="price" class="num" value="${esc(it.price)}" placeholder="단가" style="width:90px">
+        <span class="vamt"><span class="op">=</span><span data-amt>${fmt0(itemAmount(it))}</span><span class="unit">THB</span><button class="mini warn" data-del>✕</button></span>
+      </div></div>`;
+    }
+  }
+  return h;
+}
+function renderMeta(){
+  $('#m_no').value=Q.no||''; $('#m_date').value=Q.date||''; $('#m_name').value=Q.name||'';
+  $('#m_pax').value=Q.pax||''; $('#m_period').value=Q.period||''; $('#m_golfnote').value=Q.golfnote||'';
+  $('#m_pfrom').value=Q.pfrom||''; $('#m_pto').value=Q.pto||'';
+  $('#m_fx').value=Q.fx; renderFxInfo();
+  $('#m_remark').value=Q.remark||'';
+}
+function renderTotals(){
+  const t=totals();
+  $('#t_golf').textContent=fmt0(t.golf);
+  $('#t_hotel').textContent=fmt0(t.hotel); $('#t_car').textContent=fmt0(t.car);
+  $('#t_item').textContent=fmt0(t.other); $('#t_item').style.display=$('#t_item_l').style.display = t.other?'':'none';
+  $('#t_grand').textContent='฿'+fmt2(t.grand);
+  $('#t_pp').textContent=fmt0(t.pp)+' 밧';
+  $('#t_ppw').textContent='약 '+manwon(t.ppw);
+}
+/* 금액 칸만 갱신 (입력 포커스 유지) */
+function refreshAmounts(){
+  $$('#golfTable tbody tr').forEach(tr=>{
+    const r=Q.rows.find(x=>x.id===tr.dataset.id); if(!r) return;
+    const inf=rowInfo(r);
+    tr.querySelector('[data-amt]').textContent=fmt0(inf.amount);
+    const pi=tr.querySelector('[data-f="price"]');
+    if(!r.manual && document.activeElement!==pi) pi.value = inf.auto==null?'':inf.auto;
+  });
+  $$('#hotelWrap [data-id], #carWrap [data-id], #otherWrap [data-id]').forEach(tr=>{
+    const it=Q.items.find(x=>x.id===tr.dataset.id); if(!it||it.type==='note') return;
+    const c=tr.querySelector('[data-amt]'); if(c) c.textContent=fmt0(itemAmount(it));
+    if(it.type==='hotel'){
+      const hi=hotelInfo(it);
+      const n=tr.querySelector('[data-nights]'); if(n) n.textContent=hi.nights?hi.nights+'박 '+(hi.nights+1)+'일':'';
+      const n2=tr.querySelector('[data-nights2]'); if(n2) n2.textContent=hi.nights||0;
+      const cl=tr.querySelector('[data-calc]'); if(cl) cl.textContent=fmt0(hi.rooms*hi.rrate*hi.nights);
+      const q=tr.querySelector('[data-nightsph]'); if(q) q.placeholder=hi.nights||'';
+      const pI=tr.querySelector('[data-hprice]'); if(pI) pI.placeholder=hi.autoPrice||'';
+      const sI=tr.querySelector('[data-autosub]'); if(sI) sI.placeholder=hi.autoSub||'상세 직접입력';
+      const nI=tr.querySelector('[data-autonote]'); if(nI) nI.placeholder=hi.autoNote||'※ 비고문구';
+    }
+    if(it.type==='transfer'){
+      const ti=transferInfo(it);
+      const ad=tr.querySelector('[data-autodate]'); if(ad) ad.textContent = ti.date?'(자동 '+dmy(ti.date)+')':'';
+    }
+    if(it.type==='car'){
+      const ci=carInfo(it);
+      const a=tr.querySelector('[data-autoname]'); if(a) a.placeholder=ci.autoName;
+      const q=tr.querySelector('[data-carqty]'); if(q) q.placeholder=ci.cars||'';
+      const u=tr.querySelector('[data-carunit]'); if(u) u.placeholder=ci.days?ci.days+'일':'';
+      const pI=tr.querySelector('[data-hprice]'); if(pI) pI.placeholder=ci.crate||'';
+      const nI=tr.querySelector('[data-autonote]'); if(nI) nI.placeholder=ci.autoNote||'**비고문구';
+    }
+  });
+  renderTotals(); renderPaper(); autosave();
+}
+function renderAll(){ renderMeta(); renderGolf(); renderItems(); renderTotals(); renderPaper(); }
+
+/* ============================================================ 견적서 출력물 */
+function renderPaper(){
+  const t=totals();
+  const pax=nz(Q.pax)||0;
+  const fmtN=n=>Math.round(n).toLocaleString('en-US');
+  const dayCell=(ds)=>{ const d=parseDate(ds); if(!d) return '<td class="day"></td>';
+    const hol=!!holidayName(ds); const we=d.getDay()===0||d.getDay()===6||hol;
+    return `<td class="day${we?' we':''}"><b>${d.getMonth()+1}/${d.getDate()}</b><span class="wk">${DAY_KO[d.getDay()]}</span></td>`; };
+  const longDate=(ds)=>{ const d=parseDate(ds); return d? `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일(${DAY_KO[d.getDay()]})` : ''; };
+  const shortDate=(ds)=>{ const d=parseDate(ds); return d? `${d.getMonth()+1}/${d.getDate()}` : ''; };
+
+  /* ── 일정 항목 모으기 (골프 + 공항픽업/샌딩) */
+  const ev=[];
+  let golfCnt=0, holesAll18=true;
+  Q.rows.forEach(r=>{
+    const inf=rowInfo(r);
+    const c=course(r.ck);
+    const q=QUICK.find(x=>x.k===r.ck);
+    const nm = r.ck==='custom' ? r.cname : (c? c.ko : (q? q.n : ''));
+    const isRest = r.ck==='q_rest';
+    if(!nm && !r.desc) return;
+    const isGolf = !!c || (q && q.k==='q_amata') || (r.ck==='custom' && inf.price>0);
+    if(isGolf){ golfCnt++; if(r.holes!=='18') holesAll18=false; }
+    const holesTxt = !c ? '' : r.holes==='9' ? '9홀' : r.holes==='27' ? '27홀' : r.holes==='36' ? '36홀' : r.holes==='gal' ? '갤러리' : '18홀';
+    const rateTxt = (c && inf.rate==='hol') ? '<span class="hol">공휴일</span>' : (c && inf.rate==='we') ? '주말' : '';
+    const memo=[holesTxt,rateTxt,esc(r.desc)].filter(Boolean).join(' · ');
+    const extra = inf.extra ? ` <span class="memo">+${esc(r.extraDesc||'추가')} ${fmtN(inf.extra)}${inf.extraPP?'/인':''}</span>` : '';
+    const stop = isRest ? '<span class="stop rest">휴식</span>' : isGolf ? '<span class="stop golf">골프</span>' : '<span class="stop">일정</span>';
+    ev.push({date:r.date, ord:1, html:`<tr>${dayCell(r.date)}<td>${stop}${esc(isRest?(r.desc||'휴식'):nm)}${memo&&!isRest?` <span class="memo">${memo}</span>`:''}${extra}</td>
+      <td class="c num">${isRest?'':(inf.qty||'')}</td><td class="r num">${inf.unitPrice?fmtN(inf.unitPrice):''}</td><td class="r num">${inf.amount?fmtN(inf.amount):'-'}</td></tr>`});
+  });
+  const hotel=Q.items.find(i=>i.type==='hotel');
+  const hi=hotel?hotelInfo(hotel):null;
+  Q.items.filter(i=>i.type==='transfer').forEach(it=>{
+    const ti=transferInfo(it);
+    const cars=nz(it.cars)||ti.qty||1;
+    const lbl = it.dir==='send' ? '공항 샌딩' : '공항 픽업';
+    const route = it.dir==='send' ? '파타야 → 수완나품' : '수완나품 → 파타야';
+    ev.push({date:ti.date, ord:it.dir==='send'?2:0, html:`<tr>${dayCell(ti.date)}<td><span class="stop car">${lbl}</span>${route} · 밴 ${cars}대${it.flight?` <span class="memo">${esc(it.flight)}</span>`:''}</td>
+      <td class="c num">${ti.qty}대</td><td class="r num">${ti.price?fmtN(ti.price):''}</td><td class="r num">${ti.amount?fmtN(ti.amount):'-'}</td></tr>`});
+  });
+  if(hi && hi.name && hotel.cin && hi.nights){
+    const stayMemo=[esc(hi.name), hi.nights?hi.nights+'박':'', hi.villa?'풀빌라 전체':(hi.rooms?`${hi.rooms}실 (${hotel.ppl||2}인 1실)`:''), hotel.bf?'조식 포함':'조식 불포함'].filter(Boolean).join(' · ');
+    ev.push({date:hotel.cin, ord:1.5, html:`<tr class="stay">${(()=>{const d=parseDate(hotel.cin);return `<td class="day"><span class="memo">${shortDate(hotel.cin)} → ${shortDate(hotel.cout)}</span></td>`;})()}<td colspan="4"><div class="bar"><span class="stop">숙박</span><i></i><span class="memo">${stayMemo}</span></div></td></tr>`});
+  }
+  ev.sort((a,b)=> (a.date||'9999')<(b.date||'9999') ? -1 : (a.date||'9999')>(b.date||'9999') ? 1 : a.ord-b.ord);
+
+  /* ── 숙박 / 차량 / 기타 표 */
+  let hotelRows='';
+  if(hi && hi.name && hi.amount){
+    const memo=[hotel.cin?'체크인 '+shortDate(hotel.cin):'', hotel.cout?'체크아웃 '+shortDate(hotel.cout):'', hi.villa?'풀빌라 전체 1일 요금':`${hotel.ppl||2}인 1실`, hotel.bf?'조식 포함':'조식 불포함', hotel.note?esc(hotel.note):''].filter(Boolean).join(' · ');
+    const qtyTxt = hi.villa ? `${hi.nights}박` : `${hi.rooms}실 × ${hi.nights}박`;
+    hotelRows=`<tr><td>${esc(hi.name)} <span class="memo">${memo}</span></td><td class="c num" style="width:100px">${qtyTxt}</td><td class="r num" style="width:82px">${hi.villa?fmtN(hi.price):fmtN(hi.rrate)}</td><td class="r num" style="width:86px">${hi.amount?fmtN(hi.amount):'-'}</td></tr>`;
+  }
+  let carRows='';
+  Q.items.filter(i=>i.type==='car').forEach(it=>{
+    const ci=carInfo(it); if(!ci.amount) return;
+    const name = it.nameManual!=='' ? esc(it.nameManual) : `${esc(ci.ctype)} ${ci.cars}대 · ${ci.days}일`;
+    const memo = it.note!=='' ? esc(it.note) : `1일 ${ci.hours}시간 기준 · ${esc((it.incl||'').replace(/,/g,' · '))}`;
+    carRows+=`<tr><td>${name} <span class="memo">${memo}</span></td><td class="c num" style="width:100px">${ci.qty}대 × ${ci.days}일</td><td class="r num" style="width:82px">${ci.price?fmtN(ci.price):''}</td><td class="r num" style="width:86px">${ci.amount?fmtN(ci.amount):'-'}</td></tr>`;
+  });
+  let otherRows='';
+  Q.items.filter(i=>i.type==='item' && (i.name||nz(i.price))).forEach(it=>{
+    const gq=(it.qty!==''&&it.qty!=null)?it.qty:(/^pax$/i.test(String(it.unit||'').trim())?(Q.pax||''):(nz(it.price)?1:''));
+    otherRows+=`<tr><td>${esc(it.name)}${it.sub?` <span class="memo">${esc(it.sub)}</span>`:''}</td><td class="c num" style="width:100px">${esc(gq)}${/^pax$/i.test(String(it.unit||'').trim())?'명':esc(it.unit||'')}</td><td class="r num" style="width:82px">${it.price!==''?fmtN(nz(it.price)):''}</td><td class="r num" style="width:86px">${itemAmount(it)?fmtN(itemAmount(it)):'-'}</td></tr>`;
+  });
+
+  /* ── 요약 */
+  const nights = hi ? hi.nights : 0;
+  let periodTxt='';
+  if(Q.pfrom && Q.pto){ const n=nightsBetween(Q.pfrom,Q.pto); periodTxt=`${longDate(Q.pfrom)} ~ ${longDate(Q.pto)}${n?` · ${n}박 ${n+1}일`:''}`; }
+  else periodTxt=Q.period||'';
+  const nameTxt = Q.name ? (/님\s*$/.test(Q.name)?Q.name:Q.name+' 님') : '';
+  const title = [nameTxt, SET.trip||'파타야 골프 여행'].filter(Boolean).join(' · ');
+  const fx=fxRate();
+  const contacts=[SET.c1,SET.c2].map(s=>String(s||'').replace(/^\s*문의\s*[:：]\s*/,'').replace(/\(\s*/g,'').replace(/\s*\)/g,'').replace(/\s+-\s+/g,'-').trim()).filter(Boolean);
+  const bank=String(SET.bank||'').replace(/※\s*입금\s*계좌\s*※/g,'').replace(/[\[\]]/g,'').replace(/\s{2,}/g,' ').trim();
+  const golfnote=String(Q.golfnote||'').replace(/^[※*\s]+/,'').replace(/\.$/,'');
+  const incl=[];
+  if(golfCnt) incl.push(`골프 ${golfCnt}회: ${golfnote||'그린피, 전동카, 캐디피 (1인 1캐디)'}`);
+  const inc2=[]; if(hi&&hi.name&&nights) inc2.push(`호텔 ${nights}박${hotel.bf?' 조식':''}`);
+  if(Q.items.some(i=>i.type==='transfer'&&transferInfo(i).amount)) inc2.push('공항 픽업·샌딩');
+  if(Q.items.some(i=>i.type==='car'&&carInfo(i).amount)) inc2.push('일정 중 전용 차량');
+  if(inc2.length) incl.push(inc2.join(', '));
+  const notes=[];
+  String(Q.remark||'').split('\n').map(l=>l.replace(/^[\s*※•-]+/,'').trim()).filter(Boolean).forEach(l=>notes.push(esc(l)));
+  Q.items.filter(i=>i.type==='note'&&i.name).forEach(i=>notes.push(esc(String(i.name).replace(/^[\s*※•-]+/,''))));
+  notes.push('원화 금액은 견적일 환율 기준이며 입금 시 환율에 따라 달라질 수 있습니다.');
+  const dateTxt = Q.date ? Q.date.replace(/-/g,'. ') : '';
+
+  const sumRows=[];
+  if(t.golf) sumRows.push(`<div class="row"><span>골프 ${golfCnt}회</span>${fmtN(t.golf)}</div>`);
+  if(t.hotel) sumRows.push(`<div class="row"><span>숙박${nights?' '+nights+'박':''}</span>${fmtN(t.hotel)}</div>`);
+  if(t.car) sumRows.push(`<div class="row"><span>차량 · 공항 픽업/샌딩</span>${fmtN(t.car)}</div>`);
+  if(t.other) sumRows.push(`<div class="row"><span>기타</span>${fmtN(t.other)}</div>`);
+
+  const html=`
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 100 100" aria-label="SKY GOLF AGENCY"><defs>
+    <clipPath id="skyc"><circle cx="50" cy="50" r="42"/></clipPath>
+    <clipPath id="ringL"><path d="M53 0 H0 V100 H47 Z"/></clipPath>
+    <clipPath id="ringR"><path d="M53 0 H100 V100 H47 Z"/></clipPath>
+  </defs>
+  <circle cx="50" cy="50" r="49" fill="#3577c4" clip-path="url(#ringL)"/>
+  <circle cx="50" cy="50" r="49" fill="#d9363a" clip-path="url(#ringR)"/>
+  <circle cx="50" cy="50" r="43.6" fill="#fff"/>
+  <circle cx="50" cy="50" r="42" fill="#5cb1e8"/>
+  <g clip-path="url(#skyc)">
+    <g fill="#fff">
+      <ellipse cx="25" cy="43" rx="15" ry="10"/>
+      <ellipse cx="12" cy="52" rx="12" ry="9"/>
+      <ellipse cx="36" cy="52" rx="13" ry="8"/>
+      <ellipse cx="22" cy="58" rx="20" ry="9"/>
+      <ellipse cx="75" cy="42" rx="14" ry="9.5"/>
+      <ellipse cx="88" cy="50" rx="12" ry="8.5"/>
+      <ellipse cx="64" cy="52" rx="12" ry="7.5"/>
+      <ellipse cx="78" cy="58" rx="20" ry="9"/>
+    </g>
+    <ellipse cx="40" cy="90" rx="56" ry="30" fill="#43b04e"/>
+    <ellipse cx="68" cy="96" rx="50" ry="32" fill="#2f9c43"/>
+    <path d="M8 66 Q38 56 60 63 T96 64" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+    <rect x="49.9" y="30" width="1.5" height="34" fill="#fff"/>
+    <path d="M51.4 30.4 L65.6 33.4 L65.6 42.4 L51.4 40.2 Z" fill="#d9363a"/>
+    <text x="58.6" y="38.8" font-family="Arial,Helvetica,sans-serif" font-size="4" font-weight="700" fill="#fff" text-anchor="middle">SGA</text>
+    <text x="50" y="79" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="800" fill="#fff" text-anchor="middle" letter-spacing=".2">${esc(SET.logo||"SKY GOLF")}</text>
+    <text x="50" y="84.5" font-family="Arial,Helvetica,sans-serif" font-size="3.2" font-weight="700" fill="#fff" text-anchor="middle" letter-spacing="1">AGENCY</text>
+  </g></svg>
+    <div>
+      <div class="co">${esc(SET.cname)}</div>
+      <div class="addr">${esc(SET.addr)}${SET.tax?' · '+esc(SET.tax):''}</div>
+    </div>
+    <div class="doc"><b>견적서 Quotation</b>${esc(Q.no)}${dateTxt?' · 작성일 '+esc(dateTxt):''}</div>
+  </div>
+
+  <div class="hero">
+    <div>
+      <h1>${esc(title)}</h1>
+      <div class="facts">
+        ${periodTxt?`<div><span>기간</span><b>${esc(periodTxt)}</b></div>`:''}
+        ${pax?`<div><span>인원</span><b>${pax}명</b></div>`:''}
+        ${golfCnt?`<div><span>라운드</span><b>${golfCnt}회${holesAll18?' (18홀)':''}</b></div>`:''}
+        ${hi&&hi.name?`<div><span>숙소</span><b>${esc(hi.name)}${nights?' · '+nights+'박':''}</b></div>`:''}
+      </div>
+    </div>
+    <div class="pp">
+      <div class="lbl">1인당 여행 비용</div>
+      <div class="thb num">฿${fmtN(t.pp)}</div>
+      <div class="krw num">약 ${manwon(t.ppw)} <span style="font-weight:400;color:var(--mute)">(1฿=${fx}원)</span></div>
+      <div class="tot num">${pax?pax+'명 ':''}총액 ฿${fmtN(t.grand)}</div>
+    </div>
+  </div>
+
+  <h2>일정 <small>날짜순${golfCnt?' · 골프는 '+esc(golfnote||'전동카·캐디피 포함')+' 1인 요금':''}</small><span class="sum num">${[t.golf?'골프 ฿'+fmtN(t.golf):'', t.car?'차량 ฿'+fmtN(t.car):''].filter(Boolean).join(' · ')}</span></h2>
+  <table>
+    <thead><tr><th style="width:92px">날짜</th><th>내용</th><th class="c" style="width:52px">인원</th><th class="r" style="width:82px">단가</th><th class="r" style="width:86px">금액</th></tr></thead>
+    <tbody>${ev.map(e=>e.html).join('')}</tbody>
+  </table>
+
+  ${hotelRows?`<h2>숙박 <span class="sum num">฿${fmtN(t.hotel)}</span></h2><table><tbody>${hotelRows}</tbody></table>`:''}
+  ${carRows?`<h2>전용 차량 <span class="sum num">฿${fmtN(Q.items.filter(i=>i.type==='car').reduce((a,i)=>a+carInfo(i).amount,0))}</span></h2><table><tbody>${carRows}</tbody></table>`:''}
+  ${otherRows?`<h2>기타 <span class="sum num">฿${fmtN(t.other)}</span></h2><table><tbody>${otherRows}</tbody></table>`:''}
+
+  <div class="total">
+    <div class="incl">
+      ${incl.length?`<h3>포함 사항</h3><ul>${incl.map(l=>'<li>'+l+'</li>').join('')}</ul>`:''}
+      <h3>안내</h3>
+      <ul>${notes.map(l=>'<li>'+l+'</li>').join('')}</ul>
+    </div>
+    <div class="sumbox num">
+      ${sumRows.join('')}
+      <div class="grand"><span>총 금액 (THB)</span><b>฿${fmtN(t.grand)}</b></div>
+      <div class="pp2"><span>1인당${pax?' ('+pax+'명)':''}</span><b>฿${fmtN(t.pp)} · 약 ${manwon(t.ppw)}</b></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    ${bank?`<div><span class="k">입금 계좌</span><span class="bank">${esc(bank)}</span></div>`:''}
+    ${contacts.length?`<div><span class="k">문의</span>${contacts.map(esc).join('<br>')}</div>`:''}
+    <div class="valid">${esc(SET.valid||'').split('\n').map(esc).join('<br>')}</div>
+  </div>`;
+  $('#paper').innerHTML=html;
+}
+
+/* ============================================================ 이벤트 : 탭 */
+$$('nav button').forEach(b=>b.onclick=()=>{
+  $$('nav button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  $$('.page').forEach(p=>p.classList.remove('on')); $('#tab-'+b.dataset.tab).classList.add('on');
+  if(b.dataset.tab==='preview') renderPaper();
+  if(b.dataset.tab==='list') renderList();
+  if(b.dataset.tab==='price') renderPrice();
+  if(b.dataset.tab==='set') renderSet();
+  window.scrollTo(0,0);
+});
+
+/* ============================================================ 이벤트 : 기본정보 */
+function bindMeta(id,field,after){
+  $(id).addEventListener('input',e=>{ Q[field]=e.target.value; refreshAmounts(); if(after)after(); });
+}
+bindMeta('#m_no','no'); bindMeta('#m_date','date'); bindMeta('#m_name','name');
+bindMeta('#m_pax','pax'); bindMeta('#m_golfnote','golfnote');
+$('#m_period').addEventListener('input',e=>{ Q.period=e.target.value; Q.periodAuto=false; refreshAmounts(); });
+function periodText(a,b){ const d1=parseDate(a), d2=parseDate(b); if(!d1&&!d2) return '';
+  const md=d=>String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');
+  let t = d1 ? d1.getFullYear()+'년 '+md(d1) : '';
+  if(d2){ t += (d1?' ~ ':'~ ') + ((d1&&d1.getFullYear()!==d2.getFullYear())? d2.getFullYear()+'년 ':'') + md(d2); }
+  return t; }
+function onPeriodPick(){
+  if(Q.periodAuto!==false || !Q.period){ Q.period=periodText(Q.pfrom,Q.pto); Q.periodAuto=true; $('#m_period').value=Q.period; }
+  refreshAmounts();
+}
+$('#m_pfrom').addEventListener('change',e=>{ Q.pfrom=e.target.value; if(Q.pfrom&&(!Q.pto||Q.pto<Q.pfrom)){ Q.pto=Q.pfrom; $('#m_pto').value=Q.pto; } onPeriodPick(); });
+$('#m_pto').addEventListener('change',e=>{ Q.pto=e.target.value; onPeriodPick(); });
+bindMeta('#m_fx','fx',()=>{ Q.fxAt=''; renderFxInfo(); }); bindMeta('#m_remark','remark');
+/* 환율 조회: exchangerate-api → frankfurter(ECB) 순서로 시도 */
+function fxRate(){ const v=nz(Q.fx); return v>0 ? v : (nz(SET.fx)||42); }   // 비어 있으면 설정의 기본 환율
+function renderFxInfo(){ const el=$('#fxInfo'); if(!el) return;
+  el.textContent = nz(Q.fx)>0 ? (Q.fxAt || '직접 입력한 환율입니다. 버튼을 누르면 오늘 환율로 바뀝니다.') : '환율이 비어 있어 기본 환율 '+fxRate()+'원으로 계산합니다.'; }
+async function fetchFx(){
+  const tryers=[
+    async()=>{ const r=await fetch('https://open.er-api.com/v6/latest/THB',{cache:'no-store'}); const j=await r.json(); if(j&&j.result==='success'&&j.rates&&j.rates.KRW) return {rate:j.rates.KRW, src:'exchangerate-api', at:new Date(j.time_last_update_unix*1000)}; throw 0; },
+    async()=>{ const r=await fetch('https://api.frankfurter.dev/v1/latest?from=THB&to=KRW',{cache:'no-store'}); const j=await r.json(); if(j&&j.rates&&j.rates.KRW) return {rate:j.rates.KRW, src:'ECB(frankfurter)', at:new Date(j.date)}; throw 0; }
+  ];
+  for(const t of tryers){ try{ return await t(); }catch(e){} }
+  return null;
+}
+$('#btnFx').onclick=async()=>{
+  const b=$('#btnFx'); b.disabled=true; b.textContent='조회 중…';
+  const r=await fetchFx();
+  b.disabled=false; b.textContent='오늘 환율 가져오기';
+  if(!r){ alert('환율을 가져오지 못했습니다. 인터넷 연결을 확인하거나 직접 입력해 주세요.'); return; }
+  const v=Math.round(r.rate*100)/100;
+  Q.fx=v; $('#m_fx').value=v;
+  const d=r.at; Q.fxAt=(d.getMonth()+1)+'/'+d.getDate()+' 기준 1 THB = '+v+'원 ('+r.src+')';
+  renderFxInfo(); refreshAmounts();
+};
+
+/* ============================================================ 이벤트 : 골프 테이블 */
+$('#golfTable').addEventListener('input',e=>{
+  const tr=e.target.closest('tr'); if(!tr) return;
+  const r=Q.rows.find(x=>x.id===tr.dataset.id); if(!r) return;
+  const f=e.target.dataset.f; if(!f) return;
+  if(f==='price'){
+    const v=e.target.value.trim();
+    if(v===''){ r.manual=false; r.price=''; }
+    else { r.manual=true; r.price=v; e.target.style.fontWeight='700'; e.target.style.color='#0b63c5'; }
+    refreshAmounts(); return;
+  }
+  r[f]=e.target.value;
+  refreshAmounts();
+});
+$('#golfTable').addEventListener('change',e=>{
+  const tr=e.target.closest('tr'); if(!tr) return;
+  const r=Q.rows.find(x=>x.id===tr.dataset.id); if(!r) return;
+  const f=e.target.dataset.f;
+  if(f==='ck'){
+    r.ck=e.target.value;
+    const q=QUICK.find(x=>x.k===r.ck);
+    if(q){ r.unit=q.unit||'pax'; if(!r.desc) r.desc=''; }
+    if(r.ck && !r.ck.startsWith('q_') && r.ck!=='custom') r.unit=r.unit||'pax';
+    renderGolf(); refreshAmounts(); return;
+  }
+  if(f==='date'||f==='season'||f==='rate'||f==='holes'){ r[f]=e.target.value; renderGolf(); refreshAmounts(); }
+  if(f==='extraMode'){ r.extraMode=e.target.value; refreshAmounts(); }
+});
+$('#golfTable').addEventListener('click',e=>{
+  if(!e.target.matches('[data-del]')) return;
+  const tr=e.target.closest('tr');
+  Q.rows=Q.rows.filter(x=>x.id!==tr.dataset.id);
+  if(!Q.rows.length) Q.rows=[blankRow()];
+  renderGolf(); refreshAmounts();
+});
+$('#btnAddRow').onclick=()=>{
+  const last=Q.rows[Q.rows.length-1];
+  Q.rows.push(blankRow({ date:last&&last.date?addDays(last.date,1):todayStr(), qty:Q.pax||'', unit:last?last.unit:'pax' }));
+  renderGolf(); refreshAmounts();
+};
+$('#btnAddDays').onclick=()=>{
+  const start=prompt('시작 날짜 (예: 2027-01-22)', Q.rows[0]&&Q.rows[0].date||todayStr());
+  if(!start) return;
+  const n=parseInt(prompt('며칠치를 만들까요? (줄 수)','5'),10);
+  if(!n||n<1) return;
+  if(Q.rows.length===1 && !Q.rows[0].date && !Q.rows[0].ck) Q.rows=[];
+  for(let i=0;i<n;i++) Q.rows.push(blankRow({date:addDays(start,i), qty:Q.pax||'', unit:'pax'}));
+  renderGolf(); refreshAmounts();
+};
+
+/* ============================================================ 이벤트 : 기타 항목 */
+['#hotelWrap','#carWrap','#otherWrap'].forEach(sel=>{
+$(sel).addEventListener('input',e=>{
+  const tr=e.target.closest('[data-id]'); if(!tr) return;
+  const it=Q.items.find(x=>x.id===tr.dataset.id); if(!it) return;
+  const f=e.target.dataset.f; if(!f) return;
+  if(e.target.type==='checkbox') return;
+  it[f]=e.target.value;
+  if(f==='price'&&(it.type==='hotel'||it.type==='car'||it.type==='transfer')){ e.target.style.fontWeight=it.price!==''?'700':''; e.target.style.color=it.price!==''?'#0b63c5':''; }
+  refreshAmounts();
+});
+$(sel).addEventListener('change',e=>{
+  const tr=e.target.closest('[data-id]'); if(!tr) return;
+  const it=Q.items.find(x=>x.id===tr.dataset.id); if(!it) return;
+  const f=e.target.dataset.f; if(!f) return;
+  if(e.target.type==='checkbox'){ it[f]=e.target.checked; refreshAmounts(); if(it.type==='hotel'&&f==='bf'){ const nI=tr.querySelector('[data-autonote]'); if(nI) nI.placeholder=hotelInfo(it).autoNote||'※ 비우면 자동'; } return; }
+  if(it.type==='transfer'){
+    it[f]=e.target.value;
+    if(f==='dir'||f==='cars'||f==='date') renderItems();
+    refreshAmounts(); return;
+  }
+  if(it.type==='car'){
+    it[f]=e.target.value;
+    if(f==='ctype'||f==='cname'||f==='cars'||f==='days'||f==='hours'||f==='incl'||f==='crate') renderItems();
+    refreshAmounts(); return;
+  }
+  if(it.type==='hotel'){
+    it[f]=e.target.value;
+    if(f==='name'||f==='hname') it.basis='';   // 호텔명 바뀌면 풀빌라 여부로 자동 판정
+    if(f==='name'||f==='hname'||f==='cin'||f==='cout'||f==='rooms'||f==='ppl'||f==='basis'){
+      if(f==='cin'&&it.cin&&!it.cout){ /* 체크아웃 비어있으면 골프 마지막 날짜 다음날 */ const last=Q.rows.filter(r=>r.date).map(r=>r.date).sort().pop(); if(last&&last>it.cin) it.cout=last; }
+      renderItems();
+    }
+    refreshAmounts();
+  }
+});
+$(sel).addEventListener('click',e=>{
+  if(!e.target.matches('[data-del]')) return;
+  const tr=e.target.closest('[data-id]');
+  Q.items=Q.items.filter(x=>x.id!==tr.dataset.id);
+  renderItems(); refreshAmounts();
+});
+});
+function hotelDates(){ const h=Q.items.find(i=>i.type==='hotel'); return {cin:h&&h.cin||'', cout:h&&h.cout||''}; }
+function addTransfer(dir){
+  const g=golfDays(), hd=hotelDates();
+  const date = dir==='pickup' ? (hd.cin || g[0] || Q.pfrom || '') : (hd.cout || g[g.length-1] || Q.pto || '');
+  const car=Q.items.find(i=>i.type==='car');
+  const item=transferItem({dir, date, cars: car&&car.cars ? car.cars : ''});
+  if(dir==='pickup'){ // 호텔 다음, 차량 항목 맨 앞
+    let idx=Q.items.findIndex(i=>i.type!=='hotel'); if(idx<0) idx=Q.items.length; Q.items.splice(idx,0,item);
+  } else Q.items.push(item);
+  renderItems(); refreshAmounts();
+}
+$('#btnAddPickup').onclick=()=>addTransfer('pickup');
+$('#btnAddSend').onclick=()=>addTransfer('send');
+$('#btnAddItem').onclick=()=>{ Q.items.push(blankItem()); renderItems(); refreshAmounts(); };
+$('#btnAddCar').onclick=()=>{ const g=golfDays(); Q.items.push(carItem({days:g.length?String(g.length):''})); renderItems(); refreshAmounts(); };
+$('#btnAddHotel').onclick=()=>{ const g=Q.rows.filter(r=>r.date).map(r=>r.date).sort(); let idx=Q.items.findIndex(i=>i.type!=='hotel'); if(idx<0) idx=Q.items.length; Q.items.splice(idx,0,hotelItem({cin:g[0]||'', cout:g.length>1?g[g.length-1]:''})); renderItems(); refreshAmounts(); };
+$('#btnAddNote').onclick=()=>{ Q.items.push(blankItem({type:'note',name:'※ '})); renderItems(); refreshAmounts(); };
+
+/* ============================================================ 저장 / 목록 */
+let saveTimer=null;
+function autosave(){ clearTimeout(saveTimer); saveTimer=setTimeout(()=>LS.set(K_CUR,Q),400); }
+
+$('#btnSave').onclick=()=>{
+  if(!Q.no){ alert('견적번호를 입력하세요.'); return; }
+  const list=LS.get(K_LIST,[]);
+  const t=totals();
+  const rec=JSON.parse(JSON.stringify(Q));
+  rec._grand=t.grand; rec._saved=new Date().toISOString();
+  const i=list.findIndex(x=>x.no===Q.no);
+  if(i>=0){ if(!confirm('같은 견적번호("'+Q.no+'")가 있습니다. 덮어쓸까요?')) return; list[i]=rec; }
+  else list.unshift(rec);
+  LS.set(K_LIST,list); LS.set(K_CUR,Q);
+  alert('저장되었습니다.');
+  renderList();
+};
+$('#btnNew').onclick=()=>{
+  if(!confirm('현재 작성중인 내용을 지우고 새 견적서를 만들까요?\n(저장하지 않은 내용은 사라집니다)')) return;
+  Q=newQuote(); renderAll(); autosave();
+};
+function renderList(){
+  const list=LS.get(K_LIST,[]);
+  const tb=$('#listTable tbody');
+  $('#listEmpty').style.display = list.length?'none':'block';
+  tb.innerHTML = list.map((q,i)=>`<tr>
+    <td><b>${esc(q.no)}</b></td><td>${esc(q.date)}</td><td>${esc(q.name)}</td>
+    <td>${esc(q.pax)}</td><td>${esc(q.period)}</td>
+    <td style="text-align:right;font-weight:700">฿${fmt0(q._grand||0)}</td>
+    <td style="text-align:right;white-space:nowrap">
+      <button class="mini" data-act="load" data-i="${i}">불러오기</button>
+      <button class="mini" data-act="copy" data-i="${i}">복사해서 새 견적</button>
+      <button class="mini warn" data-act="del" data-i="${i}">삭제</button></td></tr>`).join('');
+}
+$('#listTable').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-act]'); if(!b) return;
+  const list=LS.get(K_LIST,[]); const i=+b.dataset.i; const q=list[i]; if(!q) return;
+  if(b.dataset.act==='del'){
+    if(!confirm('"'+q.no+'" 견적서를 삭제할까요?')) return;
+    list.splice(i,1); LS.set(K_LIST,list); renderList(); return;
+  }
+  const copy=JSON.parse(JSON.stringify(q));
+  delete copy._grand; delete copy._saved;
+  if(b.dataset.act==='copy'){ copy.no=nextNo(); copy.date=todayStr(); }
+  copy.rows.forEach(r=>r.id=uid()); copy.items.forEach(it=>it.id=uid());
+  Q=copy; renderAll(); autosave();
+  $$('nav button').forEach(x=>x.classList.remove('on'));
+  document.querySelector('nav button[data-tab="write"]').classList.add('on');
+  $$('.page').forEach(p=>p.classList.remove('on')); $('#tab-write').classList.add('on');
+  window.scrollTo(0,0);
+});
+$('#btnExport').onclick=()=>{
+  const data={list:LS.get(K_LIST,[]),settings:SET,priceOverride:OV,courses:CX,holidays:HOLX,current:Q,ver:1};
+  const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='골프견적_백업_'+todayStr()+'.json'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+};
+$('#btnImport').onclick=()=>$('#fileImport').click();
+$('#fileImport').onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const d=JSON.parse(rd.result);
+      if(!confirm('백업을 불러오면 현재 저장목록/설정을 덮어씁니다. 진행할까요?')) return;
+      if(d.list) LS.set(K_LIST,d.list);
+      if(d.settings){ SET=Object.assign({},DEF_SET,d.settings); LS.set(K_SET,SET); }
+      if(d.priceOverride){ OV=d.priceOverride; LS.set(K_OV,OV); }
+      if(d.courses){ CX=Object.assign({add:[],del:{},edit:{}},d.courses); saveCX(); }
+      if(d.holidays){ HOLX=Object.assign({add:{},del:{}},d.holidays); LS.set(K_HOL,HOLX); }
+      if(d.current){ Q=d.current; LS.set(K_CUR,Q); }
+      renderAll(); renderList(); alert('복원되었습니다.');
+    }catch(err){ alert('파일을 읽을 수 없습니다.'); }
+  };
+  rd.readAsText(f); e.target.value='';
+};
+
+/* ============================================================ 인쇄 / 이미지 */
+$('#btnPrint').onclick=()=>{
+  renderPaper();
+  $('#printArea').innerHTML='<div id="paper">'+$('#paper').innerHTML+'</div>';
+  window.print();
+};
+$('#btnJpg').onclick=async ()=>{
+  renderPaper();
+  const src=$('#paper');
+  const PW=src.offsetWidth||800; const W=PW+40, H=src.offsetHeight+40;
+  const css=$('#printcss').textContent;
+  const clone=src.cloneNode(true);
+  clone.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
+  clone.setAttribute('style','width:'+PW+'px;background:#fff');
+  let inner;
+  try{ inner=new XMLSerializer().serializeToString(clone); }
+  catch(err){ alert('이미지 변환에 실패했습니다. 인쇄 → PDF 저장을 이용해 주세요.'); return; }
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'">'+
+    '<foreignObject width="100%" height="100%"><style>'+css.replace(/@media print[\s\S]*?\}\s*\}/g,'')+'</style>'+
+    '<div xmlns="http://www.w3.org/1999/xhtml" style="padding:20px;background:#fff">'+inner+'</div>'+
+    '</foreignObject></svg>';
+  const img=new Image();
+  img.onload=()=>{
+    const sc=2, cv=document.createElement('canvas');
+    cv.width=W*sc; cv.height=H*sc;
+    const cx=cv.getContext('2d');
+    cx.fillStyle='#fff'; cx.fillRect(0,0,cv.width,cv.height);
+    cx.drawImage(img,0,0,cv.width,cv.height);
+    try{
+      const a=document.createElement('a');
+      a.href=cv.toDataURL('image/jpeg',0.95);
+      a.download='견적서_'+(Q.name||'')+'_'+(Q.no||'').replace(/[^0-9]/g,'')+'.jpg';
+      a.click();
+    }catch(err){ alert('이미지 저장에 실패했습니다. 인쇄 → PDF 저장을 이용해 주세요.'); }
+  };
+  img.onerror=()=>alert('이미지 변환에 실패했습니다. 인쇄 → PDF 저장을 이용해 주세요.');
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+};
+
+/* ============================================================ 단가표 화면 */
+let priceEdit=false;
+function renderPrice(){
+  const wrap=$('#priceWrap');
+  wrap.innerHTML = seasonTable('H','High Season 2026-27') + seasonTable('L','Low Season 2026');
+  renderHol();
+  $('#btnEditPrice').textContent = priceEdit?'수정 끝내기 (저장됨)':'단가 수정';
+  $('#btnEditPrice').className = priceEdit?'primary':'';
+}
+let holYearSel='';
+function renderHol(){
+  const list=allHolidays();
+  const years=[...new Set(list.map(x=>x.d.slice(0,4)))].sort();
+  const cur=String(new Date().getFullYear());
+  if(!holYearSel) holYearSel = years.includes(cur)?cur:(years[0]||'');
+  $('#holYear').innerHTML = '<option value="">전체</option>'+years.map(y=>`<option value="${y}" ${holYearSel===y?'selected':''}>${y}년</option>`).join('');
+  let h='';
+  list.filter(x=>!holYearSel||x.d.startsWith(holYearSel)).forEach(x=>{
+    const d=parseDate(x.d); const w=d?d.getDay():-1;
+    h+=`<tr style="${x.off?'opacity:.45;text-decoration:line-through':''}">
+      <td>${dmy(x.d)}</td>
+      <td style="text-align:center;font-weight:700;${w===0||w===6?'color:#d2453c':''}">${w>=0?DAY_KO[w]:''}</td>
+      <td>${esc(x.name)}</td>
+      <td style="text-align:center">${x.src==='add'?'<span class="tag">추가</span>':'<span class="tag na">기본</span>'}</td>
+      <td style="text-align:center">${x.off
+        ? `<button class="mini" data-hol-restore="${x.d}" title="다시 공휴일로">복원</button>`
+        : `<button class="mini warn" data-hol-del="${x.d}" title="공휴일에서 제외">✕</button>`}</td></tr>`;
+  });
+  $('#holTable tbody').innerHTML = h || '<tr><td colspan="5" class="hint" style="text-align:center">등록된 공휴일이 없습니다.</td></tr>';
+}
+function saveHol(){ LS.set(K_HOL,HOLX); renderHol(); renderGolf(); refreshAmounts(); renderPaper(); }
+$('#holYear').onchange=e=>{ holYearSel=e.target.value; renderHol(); };
+$('#btnAddHol').onclick=()=>{
+  const d=$('#holDate').value, n=$('#holName').value.trim();
+  if(!d){ alert('날짜를 선택하세요.'); return; }
+  HOLX.add[d]=n||'공휴일'; delete HOLX.del[d];
+  $('#holDate').value=''; $('#holName').value='';
+  holYearSel=d.slice(0,4); saveHol();
+};
+$('#btnResetHol').onclick=()=>{
+  if(!confirm('직접 추가·제외한 공휴일을 모두 지우고 기본 목록으로 되돌릴까요?')) return;
+  HOLX={add:{},del:{}}; saveHol();
+};
+$('#holTable').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.holDel){ const d=b.dataset.holDel; if(HOLX.add[d]) delete HOLX.add[d]; else HOLX.del[d]=true; saveHol(); }
+  if(b.dataset.holRestore){ delete HOLX.del[b.dataset.holRestore]; saveHol(); }
+});
+function seasonTable(season,label){
+  const keys=[['w18','평일 18H'],['w9','평일 9H'],['e18','주말 18H'],['e9','주말 9H']];
+  let h=`<div style="padding:12px 14px 4px"><b style="font-size:14px;color:#14713f">${label}</b>
+    <span class="hint"> · Total 기준 (THB)</span></div><div style="padding:0 14px 16px"><table class="price">
+    <tr><th rowspan="2">골프장</th><th colspan="2">Visitor Green Fee</th>`;
+  keys.forEach(k=>h+=`<th rowspan="2">${k[1]}<br>Total</th>`);
+  h+=`<th rowspan="2">기간</th><th rowspan="2">Sportday</th><th rowspan="2">Gallery</th></tr>
+      <tr><th>평일</th><th>주말</th></tr>`;
+  const inp=(ck,cf,val,w,ph)=>`<input class="num" style="width:${w}px;padding:2px 4px" data-cf="${cf}" data-ck="${ck}" data-se="${season}" value="${esc(val==null?'':val)}" placeholder="${ph||''}">`;
+  COURSES.forEach(c=>{
+    const s=c[season];
+    const user=isUserCourse(c.k), edited=!!CX.edit[c.k];
+    if(priceEdit) h+=`<tr><td class="nm"><input data-cf="ko" data-ck="${c.k}" value="${esc(c.ko)}" style="width:120px;padding:2px 4px;font-weight:700"><br><input data-cf="n" data-ck="${c.k}" value="${esc(c.n)}" style="width:120px;padding:2px 4px;font-size:11px;margin-top:2px"><br><button class="mini warn" data-cdel="${c.k}" style="margin-top:3px">${user?'삭제':'숨기기'}</button></td>`;
+    else h+=`<tr><td class="nm">${esc(c.ko)}${user?' <span class="tag">추가</span>':edited?' <span class="tag" style="background:#e3eefc;color:#0b63c5">수정</span>':''}<div style="font-weight:400;color:#7b837f;font-size:11px">${esc(c.n)}</div></td>`;
+    if(!s){ h+=`<td class="na" colspan="9">해당 시즌 없음</td></tr>`; return; }
+    if(priceEdit) h+=`<td>${inp(c.k,'vg0',s.vg?s.vg[0]:null,64)}</td><td>${inp(c.k,'vg1',s.vg?s.vg[1]:null,64)}</td>`;
+    else h+=`<td>${s.vg&&s.vg[0]!=null?fmt0(s.vg[0]):'-'}</td><td>${s.vg&&s.vg[1]!=null?fmt0(s.vg[1]):'-'}</td>`;
+    keys.forEach(k=>{
+      const v=tableCell(c.k,season,k[0]);
+      const ov=OV[c.k]&&OV[c.k][season]&&OV[c.k][season][k[0]];
+      if(priceEdit) h+=`<td class="t"><input class="num" style="width:74px;padding:2px 4px" data-ck="${c.k}" data-se="${season}" data-key="${k[0]}" value="${v==null?'':v}"></td>`;
+      else h+=`<td class="t ${v==null?'na':''}" ${ov?'style="color:#0b63c5"':''}>${v==null?(s.tbd?'미정':'-'):fmt0(v)}</td>`;
+    });
+    if(priceEdit) h+=`<td><input data-cf="term" data-ck="${c.k}" data-se="${season}" value="${esc(s.term||'')}" style="width:88px;padding:2px 4px"></td>
+        <td style="white-space:nowrap"><input data-cf="spd" data-ck="${c.k}" data-se="${season}" value="${esc(s.sp?s.sp.d:'')}" placeholder="요일" style="width:52px;padding:2px 4px"> ${inp(c.k,'spt',s.sp?s.sp.t18:null,64,'18H')} <input data-cf="spm" data-ck="${c.k}" data-se="${season}" value="${esc(s.sp?s.sp.memo:'')}" placeholder="메모" style="width:80px;padding:2px 4px"></td>`;
+    else h+=`<td>${esc(s.term||'')}</td><td>${s.sp?esc(s.sp.d)+' '+(s.sp.t18?fmt0(s.sp.t18):'')+(s.sp.memo?' ('+esc(s.sp.memo)+')':''):'No Have'}</td>`;
+    h+=`
+        <td>${priceEdit
+          ? `<input class="num" style="width:64px;padding:2px 4px" data-ck="${c.k}" data-se="${season}" data-key="gal" value="${tableCell(c.k,season,'gal')??''}">`
+          : (OV[c.k]&&OV[c.k][season]&&OV[c.k][season].gal!=null ? `<span style="color:#0b63c5">${fmt0(tableCell(c.k,season,'gal'))}</span>` : (s.gal!=null?esc(String(s.gal)):'-'))}</td></tr>`;
+  });
+  if(priceEdit){ BASE.filter(b=>CX.del[b.k]).forEach(b=>{ h+=`<tr style="opacity:.55"><td class="nm">${esc(b.ko)} <span class="tag na">숨김</span><div style="font-weight:400;font-size:11px">${esc(b.n)}</div></td><td colspan="9" style="text-align:left">숨긴 골프장입니다. <button class="mini" data-crestore="${b.k}">복원</button></td></tr>`; }); }
+  return h+'</table></div>';
+}
+$('#btnEditPrice').onclick=()=>{ priceEdit=!priceEdit; renderPrice(); };
+$('#btnResetPrice').onclick=()=>{
+  if(!confirm('수정한 단가·골프장 이름·그린피·기간을 모두 지우고 원래 단가표로 되돌릴까요?\n(직접 추가한 골프장은 남습니다. 숨긴 골프장은 다시 보입니다)')) return;
+  OV={}; LS.set(K_OV,OV); CX.del={}; CX.edit={}; saveCX(); renderPrice(); renderGolf(); refreshAmounts();
+};
+$('#btnAddCourse').onclick=()=>{
+  const ko=$('#cxKo').value.trim(), en=$('#cxEn').value.trim();
+  if(!ko){ alert('골프장 한글명을 입력하세요.'); $('#cxKo').focus(); return; }
+  CX.add=CX.add||[]; CX.add.push({k:'u_'+uid(),ko,n:en,L:blankSeason('4/1~10/31'),H:blankSeason('11/1~3/31')});
+  $('#cxKo').value=''; $('#cxEn').value='';
+  priceEdit=true; saveCX(); renderPrice(); renderGolf(); refreshAmounts();
+  const last=$('#priceWrap table.price tr:last-child input'); if(last) last.focus();
+};
+$('#priceWrap').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.cdel){
+    const k=b.dataset.cdel, c=course(k);
+    if(isUserCourse(k)){ if(!confirm('"'+(c?c.ko:'')+'" 골프장을 삭제할까요?')) return; CX.add=CX.add.filter(x=>x.k!==k); delete OV[k]; LS.set(K_OV,OV); }
+    else { if(!confirm('"'+(c?c.ko:'')+'" 골프장을 목록에서 숨길까요? (수정 모드에서 복원할 수 있습니다)')) return; CX.del[k]=true; }
+    saveCX(); renderPrice(); renderGolf(); refreshAmounts();
+  }
+  if(b.dataset.crestore){ delete CX.del[b.dataset.crestore]; saveCX(); renderPrice(); renderGolf(); refreshAmounts(); }
+});
+$('#priceWrap').addEventListener('input',e=>{
+  const i=e.target; if(!i.dataset.ck || !i.dataset.cf) return;
+  const {ck,se,cf}=i.dataset; const v=i.value.trim();
+  const u=(CX.add||[]).find(c=>c.k===ck);
+  if(cf==='ko'||cf==='n'){
+    if(u) u[cf]=v; else { CX.edit[ck]=CX.edit[ck]||{}; const b=BASE.find(c=>c.k===ck); if(b && b[cf]===v) delete CX.edit[ck][cf]; else CX.edit[ck][cf]=v; }
+    saveCX(); return;
+  }
+  const num = v===''?null:nz(v);
+  if(u){
+    const s=u[se]=u[se]||blankSeason('');
+    if(cf==='vg0') s.vg[0]=num; else if(cf==='vg1') s.vg[1]=num; else if(cf==='term') s.term=v;
+    else { s.sp=s.sp||{d:'',t18:null,memo:''}; if(cf==='spd') s.sp.d=v; if(cf==='spt') s.sp.t18=num; if(cf==='spm') s.sp.memo=v; if(!s.sp.d&&s.sp.t18==null&&!s.sp.memo) s.sp=null; }
+  } else {
+    const ed=CX.edit[ck]=CX.edit[ck]||{}; const x=ed[se]=ed[se]||{};
+    if(cf==='vg0'||cf==='vg1'){ x[cf]=num; }
+    else if(cf==='term'){ x.term=v; }
+    else { const cur=course(ck)[se]; const sp=Object.assign({d:'',t18:null,memo:''}, x.sp!==undefined?(x.sp||{}):(cur&&cur.sp||{}));
+      if(cf==='spd') sp.d=v; if(cf==='spt') sp.t18=num; if(cf==='spm') sp.memo=v;
+      x.sp=(!sp.d&&sp.t18==null&&!sp.memo)?null:sp; }
+  }
+  saveCX(); refreshAmounts();
+});
+$('#priceWrap').addEventListener('input',e=>{
+  const i=e.target; if(!i.dataset.ck || i.dataset.cf) return;
+  const {ck,se,key}=i.dataset;
+  const u=(CX.add||[]).find(c=>c.k===ck);
+  if(u){ const s=u[se]=u[se]||blankSeason(''); const v=i.value.trim();
+    if(key==='gal') s.gal=v===''?null:nz(v); else s[key]=v===''?null:[null,null,null,nz(v)];
+    s.tbd = (s.w18==null&&s.w9==null&&s.e18==null&&s.e9==null)?1:0;
+    saveCX(); refreshAmounts(); return; }
+  OV[ck]=OV[ck]||{}; OV[ck][se]=OV[ck][se]||{};
+  const cs=course(ck)[se];
+  const orig= key==='gal' ? (cs&&isFinite(+cs.gal)?+cs.gal:null) : ((cs&&cs[key])?cs[key][3]:null);
+  const v=i.value.trim();
+  if(v===''||nz(v)===orig) delete OV[ck][se][key]; else OV[ck][se][key]=nz(v);
+  LS.set(K_OV,OV); refreshAmounts();
+});
+
+/* ============================================================ 설정 화면 */
+function renderSet(){
+  $('#s_cname').value=SET.cname; $('#s_logo').value=SET.logo; $('#s_addr').value=SET.addr;
+  $('#s_tax').value=SET.tax; $('#s_trip').value=SET.trip||''; $('#s_c1').value=SET.c1;
+  $('#s_c2').value=SET.c2; $('#s_bank').value=SET.bank; $('#s_valid').value=SET.valid||'';
+  $('#s_hotels').value=SET.hotels||''; $('#s_roomrate').value=SET.roomrate||''; $('#s_villarate').value=SET.villarate||''; $('#s_fx').value=SET.fx||'';
+  $('#s_carrate').value=SET.carrate||''; $('#s_carhours').value=SET.carhours||''; $('#s_transferrate').value=SET.transferrate||'';
+}
+$('#btnSaveSet').onclick=()=>{
+  SET={cname:$('#s_cname').value,logo:$('#s_logo').value,addr:$('#s_addr').value,tax:$('#s_tax').value,
+       trip:$('#s_trip').value,valid:$('#s_valid').value,c1:$('#s_c1').value,c2:$('#s_c2').value,bank:$('#s_bank').value,
+       hotels:$('#s_hotels').value, roomrate:+$('#s_roomrate').value||0, villarate:+$('#s_villarate').value||0, fx:+$('#s_fx').value||42, carrate:+$('#s_carrate').value||0, carhours:+$('#s_carhours').value||0, transferrate:+$('#s_transferrate').value||0};
+  renderItems();
+  LS.set(K_SET,SET); renderPaper(); alert('설정이 저장되었습니다.');
+};
+
+/* ============================================================ 시작 */
+renderAll();
+window.addEventListener('beforeprint',()=>{ if(!$('#printArea').innerHTML) $('#printArea').innerHTML='<div id="paper">'+$('#paper').innerHTML+'</div>'; });
+</script>
