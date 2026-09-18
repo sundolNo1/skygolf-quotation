@@ -3,12 +3,12 @@
 파타야 골프 여행 견적서 작성 프로그램(윈도우 설치형)입니다.
 
 ## 다운로드
-오른쪽 **Releases** 에서 최신 버전의 설치 파일을 받으세요.
+아래 파일 이름을 누르면 바로 내려받습니다. (최신 목록: [Releases](https://github.com/sundolNo1/skygolf-quotation/releases/latest))
 
 | 파일 | 대상 |
 |---|---|
-| `SKYGOLF_견적프로그램_설치_x.x.x.exe` | 윈도우 10 / 11 (64비트) |
-| `SKYGOLF_견적프로그램_설치_구형윈도우_x.x.x.exe` | 윈도우 7 SP1 / 8 / 8.1 (32·64비트) |
+| [SKYGOLF_Setup_Win10-11_1.0.0.exe](https://github.com/sundolNo1/skygolf-quotation/releases/download/v1.0.0/SKYGOLF_Setup_Win10-11_1.0.0.exe) | 윈도우 10 / 11 (64비트) |
+| [SKYGOLF_Setup_Win7-8_1.0.0.exe](https://github.com/sundolNo1/skygolf-quotation/releases/download/v1.0.0/SKYGOLF_Setup_Win7-8_1.0.0.exe) | 윈도우 7 SP1 / 8 / 8.1 (32·64비트) |
 
 한 PC에 두 버전을 같이 설치하지 마세요.
 
