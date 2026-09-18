@@ -1043,8 +1043,7 @@ function renderPaper(){
     ev.push({date:r.date, ord:1, html:`<tr>${dayCell(r.date)}<td>${stop}${esc(isRest?(r.desc||'휴식'):nm)}${memo&&!isRest?` <span class="memo">${memo}</span>`:''}${extra}</td>
       <td class="c num">${isRest?'':(inf.qty||'')}</td><td class="r num">${inf.unitPrice?fmtN(inf.unitPrice):''}</td><td class="r num">${inf.amount?fmtN(inf.amount):'-'}</td></tr>`});
   });
-  const hotel=Q.items.find(i=>i.type==='hotel');
-  const hi=hotel?hotelInfo(hotel):null;
+  const hotels=Q.items.filter(i=>i.type==='hotel').map(h=>({it:h, hi:hotelInfo(h)})).filter(x=>x.hi.name);
   Q.items.filter(i=>i.type==='transfer').forEach(it=>{
     const ti=transferInfo(it);
     const cars=nz(it.cars)||ti.qty||1;
@@ -1053,19 +1052,21 @@ function renderPaper(){
     ev.push({date:ti.date, ord:it.dir==='send'?2:0, html:`<tr>${dayCell(ti.date)}<td><span class="stop car">${lbl}</span>${route} · 밴 ${cars}대${it.flight?` <span class="memo">${esc(it.flight)}</span>`:''}</td>
       <td class="c num">${ti.qty}대</td><td class="r num">${ti.price?fmtN(ti.price):''}</td><td class="r num">${ti.amount?fmtN(ti.amount):'-'}</td></tr>`});
   });
-  if(hi && hi.name && hotel.cin && hi.nights){
+  hotels.forEach(({it:hotel,hi})=>{
+    if(!(hotel.cin && hi.nights)) return;
     const stayMemo=[esc(hi.name), hi.nights?hi.nights+'박':'', hi.villa?'풀빌라 전체':(hi.rooms?`${hi.rooms}실 (${hotel.ppl||2}인 1실)`:''), hotel.bf?'조식 포함':'조식 불포함'].filter(Boolean).join(' · ');
-    ev.push({date:hotel.cin, ord:1.5, html:`<tr class="stay">${(()=>{const d=parseDate(hotel.cin);return `<td class="day"><span class="memo">${shortDate(hotel.cin)} → ${shortDate(hotel.cout)}</span></td>`;})()}<td colspan="4"><div class="bar"><span class="stop">숙박</span><i></i><span class="memo">${stayMemo}</span></div></td></tr>`});
-  }
+    ev.push({date:hotel.cin, ord:1.5, html:`<tr class="stay"><td class="day"><span class="memo">${shortDate(hotel.cin)} → ${shortDate(hotel.cout)}</span></td><td colspan="4"><div class="bar"><span class="stop">숙박</span><i></i><span class="memo">${stayMemo}</span></div></td></tr>`});
+  });
   ev.sort((a,b)=> (a.date||'9999')<(b.date||'9999') ? -1 : (a.date||'9999')>(b.date||'9999') ? 1 : a.ord-b.ord);
 
   /* ── 숙박 / 차량 / 기타 표 */
   let hotelRows='';
-  if(hi && hi.name && hi.amount){
+  hotels.forEach(({it:hotel,hi})=>{
+    if(!hi.amount) return;
     const memo=[hotel.cin?'체크인 '+shortDate(hotel.cin):'', hotel.cout?'체크아웃 '+shortDate(hotel.cout):'', hi.villa?'풀빌라 전체 1일 요금':`${hotel.ppl||2}인 1실`, hotel.bf?'조식 포함':'조식 불포함', hotel.note?esc(hotel.note):''].filter(Boolean).join(' · ');
     const qtyTxt = hi.villa ? `${hi.nights}박` : `${hi.rooms}실 × ${hi.nights}박`;
-    hotelRows=`<tr><td>${esc(hi.name)} <span class="memo">${memo}</span></td><td class="c num" style="width:100px">${qtyTxt}</td><td class="r num" style="width:82px">${hi.villa?fmtN(hi.price):fmtN(hi.rrate)}</td><td class="r num" style="width:86px">${hi.amount?fmtN(hi.amount):'-'}</td></tr>`;
-  }
+    hotelRows+=`<tr><td>${esc(hi.name)} <span class="memo">${memo}</span></td><td class="c num" style="width:100px">${qtyTxt}</td><td class="r num" style="width:82px">${hi.villa?fmtN(hi.price):fmtN(hi.rrate)}</td><td class="r num" style="width:86px">${hi.amount?fmtN(hi.amount):'-'}</td></tr>`;
+  });
   let carRows='';
   Q.items.filter(i=>i.type==='car').forEach(it=>{
     const ci=carInfo(it); if(!ci.amount) return;
@@ -1080,7 +1081,7 @@ function renderPaper(){
   });
 
   /* ── 요약 */
-  const nights = hi ? hi.nights : 0;
+  const nights = hotels.reduce((a,x)=>a+(x.hi.nights||0),0);
   let periodTxt='';
   if(Q.pfrom && Q.pto){ const n=nightsBetween(Q.pfrom,Q.pto); periodTxt=`${longDate(Q.pfrom)} ~ ${longDate(Q.pto)}${n?` · ${n}박 ${n+1}일`:''}`; }
   else periodTxt=Q.period||'';
@@ -1092,7 +1093,7 @@ function renderPaper(){
   const golfnote=String(Q.golfnote||'').replace(/^[※*\s]+/,'').replace(/\.$/,'');
   const incl=[];
   if(golfCnt) incl.push(`골프 ${golfCnt}회: ${golfnote||'그린피, 전동카, 캐디피 (1인 1캐디)'}`);
-  const inc2=[]; if(hi&&hi.name&&nights) inc2.push(`호텔 ${nights}박${hotel.bf?' 조식':''}`);
+  const inc2=[]; if(nights) inc2.push(`호텔 ${nights}박${hotels.every(x=>x.it.bf)?' 조식':''}`);
   if(Q.items.some(i=>i.type==='transfer'&&transferInfo(i).amount)) inc2.push('공항 픽업·샌딩');
   if(Q.items.some(i=>i.type==='car'&&carInfo(i).amount)) inc2.push('일정 중 전용 차량');
   if(inc2.length) incl.push(inc2.join(', '));
@@ -1153,7 +1154,7 @@ function renderPaper(){
         ${periodTxt?`<div><span>기간</span><b>${esc(periodTxt)}</b></div>`:''}
         ${pax?`<div><span>인원</span><b>${pax}명</b></div>`:''}
         ${golfCnt?`<div><span>라운드</span><b>${golfCnt}회${holesAll18?' (18홀)':''}</b></div>`:''}
-        ${hi&&hi.name?`<div><span>숙소</span><b>${esc(hi.name)}${nights?' · '+nights+'박':''}</b></div>`:''}
+        ${hotels.length?`<div><span>숙소</span><b>${esc(hotels.map(x=>x.hi.name).filter((v,i,arr)=>arr.indexOf(v)===i).join(', '))}${nights?' · '+nights+'박':''}</b></div>`:''}
       </div>
     </div>
     <div class="pp">

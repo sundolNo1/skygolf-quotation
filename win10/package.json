@@ -1,7 +1,7 @@
 {
   "name": "skygolf-quotation",
   "productName": "SKY GOLF 견적 프로그램",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "SKY GOLF Agency 골프 견적서 작성 프로그램",
   "author": "Global Cavin Bizcom Co.,Ltd.",
   "main": "main.js",
